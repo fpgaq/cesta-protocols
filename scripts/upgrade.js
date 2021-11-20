@@ -33,12 +33,35 @@ async function main() {
     // Upgrade AvaxVaultL1
     // const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
     // const avaxVaultL1Impl = await avaxVaultL1Fac.deploy()
+    // await avaxVaultL1Impl.deployTransaction.wait()
     // console.log(avaxVaultL1Impl.address)
-    // const avaxVaultL1ImplAddr = "0x5C947855aF7Ae03a33B96ae24aB2976dbb27098c"
+    // const avaxVaultL1ImplAddr = "0x084F149E5B293eB0244fBEc1B4Ed76a56a498134"
     // const avaxVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", avaxVaultL1FactoryAddr, deployer)
+    // tx = await avaxVaultL1Factory.updateLogic(avaxVaultL1Impl.address)
     // tx = await avaxVaultL1Factory.updateLogic(avaxVaultL1ImplAddr)
     // await tx.wait()
     // console.log("Contract upgraded successfully")
+
+    // Set lower yield fee
+    // const JOEAVAXVaultAddr = "0xFe67a4BAe72963BE1181B211180d8e617B5a8dee"
+    // const JOEAVAXVault = await ethers.getContractAt("AvaxVaultL1", JOEAVAXVaultAddr, deployer)
+    // tx = await JOEAVAXVault.setFee(1000, 1000)
+    // await tx.wait()
+    // const PNGAVAXVaultAddr = "0x7eEcFB07b7677aa0e1798a4426b338dA23f9De34"
+    // const PNGAVAXVault = await ethers.getContractAt("AvaxVaultL1", PNGAVAXVaultAddr, deployer)
+    // tx = await PNGAVAXVault.setFee(1000, 1000)
+    // await tx.wait()
+    // const LYDAVAXVaultAddr = "0xffEaB42879038920A31911f3E93295bF703082ed"
+    // const LYDAVAXVault = await ethers.getContractAt("AvaxVaultL1", LYDAVAXVaultAddr, deployer)
+    // tx = await LYDAVAXVault.setFee(1000, 1000)
+    // await tx.wait()
+
+    // console.log((await JOEAVAXVault.yieldFeePerc()).toString())
+    // console.log((await JOEAVAXVault.depositFeePerc()).toString())
+    // console.log((await PNGAVAXVault.yieldFeePerc()).toString())
+    // console.log((await PNGAVAXVault.depositFeePerc()).toString())
+    // console.log((await LYDAVAXVault.yieldFeePerc()).toString())
+    // console.log((await LYDAVAXVault.depositFeePerc()).toString())
 }
 
 main()

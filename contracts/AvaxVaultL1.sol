@@ -168,6 +168,10 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
         uint _totalSupply = totalSupply();
         uint share = _totalSupply == 0 ? amount : amount * _totalSupply / pool;
         _mint(msg.sender, share);
+
+        // Invest directly while deposit, since the gas fees is cheap at the moment
+        invest();
+
         emit Deposit(msg.sender, amtDeposit, share);
     }
 
@@ -198,7 +202,7 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
         emit Withdraw(msg.sender, withdrawAmt, share);
     }
 
-    function invest() public onlyOwnerOrAdmin whenNotPaused {
+    function invest() public whenNotPaused {
         if (isPng) stakingReward.stake(lpToken.balanceOf(address(this)));
         else masterChef.deposit(poolId, lpToken.balanceOf(address(this)));
     }
