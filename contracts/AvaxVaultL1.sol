@@ -95,7 +95,7 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
     event Deposit(address caller, uint amtDeposited, uint sharesMinted);
     event Withdraw(address caller, uint amtWithdrawed, uint sharesBurned);
     event Invest(uint amtInvested);
-    event Yield(uint amount);
+    event Yield(uint amount, uint fee);
     event EmergencyWithdraw(uint amtTokenWithdrawed);
     event SetWhitelistAddress(address _address, bool status);
     event SetFee(uint _yieldFeePerc, uint _depositFeePerc);
@@ -243,7 +243,7 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
 
         router.addLiquidity(address(token0), address(token1), token0Amt, token1Amt, 0, 0, address(this), block.timestamp);
 
-        emit Yield(WAVAXAmt);
+        emit Yield(WAVAXAmt, fee);
     }
 
     receive() external payable {}
