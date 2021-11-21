@@ -266,12 +266,12 @@ describe("Cesta Avalanche", function () {
         // amountsOutMin = await middleware.getAmountsOutMinDeXAvax((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, deployer)
         await avaxStableVault.connect(client).withdraw((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, amountsOutMin)
         // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client2.address), USDTAddr, deployer)
-        // await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
+        await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
         // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client3.address), USDTAddr, deployer)
-        // await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
-        // console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9904.774893
-        // console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9878.201368
-        // console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9849.56857
+        await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9904.774893
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9878.201368
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9849.56857
 
         // amountsOutMin = await getAmountsOutMinDeXAvax(
         //     avaxStableVault.address, deXStableStrategy.address, (await avaxStableVault.balanceOf(client.address)).div(3), USDCAddr, deployer

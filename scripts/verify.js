@@ -14,7 +14,7 @@ const mvfStrategyImplAddr = "0x9A5cC5AD35076B06a73bc8D98282761b14A998e0" // Kova
 const treasuryAddr = "0x3f68A3c1023d736D8Be867CA49Cb18c543373B99"
 const communityAddr = "0x3f68A3c1023d736D8Be867CA49Cb18c543373B99"
 const adminAddr = "0x3f68A3c1023d736D8Be867CA49Cb18c543373B99"
-const deXAvaxStrategyAddr = "0x55e05Ceecacb840Be537d1b62B10814504C9FB00"
+const deXAvaxStrategyAddr = "0x9B403B87d856ae9B640FeE80AD338b6aF78732b4"
 
 async function main() {
     // const mvfStrategyArtifact = await artifacts.readArtifact("MVFStrategy")

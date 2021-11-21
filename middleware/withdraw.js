@@ -54,11 +54,13 @@ const deXStableStrategyAddr = ""
 const stableAvaxVaultAddr = ""
 const stableAvaxStrategyAddr = ""
 
-const minimumOutputInPercentage = 995
+let amountOutMinPerc = 995
 
 const getAmountsOutMinDeXAvax = async (shareToWithdraw, stablecoinAddr, provider) => {
     provider = new ethers.providers.Web3Provider(provider) // Change Web3 provider to Ethers provider
     if (!ethers.BigNumber.isBigNumber(shareToWithdraw)) shareToWithdraw = new ethers.BigNumber.from(shareToWithdraw)
+
+    // amountOutMinPerc = 990
 
     const deXAvaxVault = new ethers.Contract(deXAvaxVaultAddr, avaxVaultABI, provider)
     const deXAvaxStrategy = new ethers.Contract(deXAvaxStrategyAddr, deXAvaxStrategyABI, provider)
@@ -88,7 +90,7 @@ const getAmountsOutMinDeXAvax = async (shareToWithdraw, stablecoinAddr, provider
     const JOEAmt = JOEReserve.mul(JOEAVAXAmt).div(totalSupplyJOEAVAX)
     const WAVAXAmtJOE = WAVAXReserveJOE.mul(JOEAVAXAmt).div(totalSupplyJOEAVAX)
     const _WAVAXAmtJOE = (await joeRouter.getAmountsOut(JOEAmt, [JOEAddr, WAVAXAddr]))[1]
-    const WAVAXAmtMinJOE = _WAVAXAmtJOE.mul(minimumOutputInPercentage).div(1000)
+    const WAVAXAmtMinJOE = _WAVAXAmtJOE.mul(amountOutMinPerc).div(1000)
     totalWAVAXAmt = totalWAVAXAmt.add(WAVAXAmtJOE.add(_WAVAXAmtJOE))
 
     const PNGAVAXAmt = (await PNGAVAXVault.balanceOf(deXAvaxStrategy.address)).mul(sharePerc).div(oneEther)
@@ -98,7 +100,7 @@ const getAmountsOutMinDeXAvax = async (shareToWithdraw, stablecoinAddr, provider
     const PNGAmt = PNGReserve.mul(PNGAVAXAmt).div(totalSupplyPNGAVAX)
     const WAVAXAmtPNG = WAVAXReservePNG.mul(PNGAVAXAmt).div(totalSupplyPNGAVAX)
     const _WAVAXAmtPNG = (await pngRouter.getAmountsOut(PNGAmt, [PNGAddr, WAVAXAddr]))[1]
-    const WAVAXAmtMinPNG = _WAVAXAmtPNG.mul(minimumOutputInPercentage).div(1000)
+    const WAVAXAmtMinPNG = _WAVAXAmtPNG.mul(amountOutMinPerc).div(1000)
     totalWAVAXAmt = totalWAVAXAmt.add(WAVAXAmtPNG.add(_WAVAXAmtPNG))
 
     const LYDAVAXAmt = (await LYDAVAXVault.balanceOf(deXAvaxStrategy.address)).mul(sharePerc).div(oneEther)
@@ -108,15 +110,67 @@ const getAmountsOutMinDeXAvax = async (shareToWithdraw, stablecoinAddr, provider
     const LYDAmt = LYDReserve.mul(LYDAVAXAmt).div(totalSupplyLYDAVAX)
     const WAVAXAmtLYD = WAVAXReserveLYD.mul(LYDAVAXAmt).div(totalSupplyLYDAVAX)
     const _WAVAXAmtLYD = (await lydRouter.getAmountsOut(LYDAmt, [LYDAddr, WAVAXAddr]))[1]
-    const WAVAXAmtMinLYD = _WAVAXAmtLYD.mul(minimumOutputInPercentage).div(1000)
+    const WAVAXAmtMinLYD = _WAVAXAmtLYD.mul(amountOutMinPerc).div(1000)
     totalWAVAXAmt = totalWAVAXAmt.add(WAVAXAmtLYD.add(_WAVAXAmtLYD))
 
     // Vault
     withdrawAmt = (await joeRouter.getAmountsOut(totalWAVAXAmt, [WAVAXAddr, tokenWithdraw]))[1]
-    const withdrawAmtMin = withdrawAmt.mul(minimumOutputInPercentage).div(1000)
+    const withdrawAmtMin = withdrawAmt.mul(amountOutMinPerc).div(1000)
     return [withdrawAmtMin, WAVAXAmtMinJOE, WAVAXAmtMinPNG, WAVAXAmtMinLYD]
+}
+
+const getAmountsOutMinDeXStable = async (shareToWithdraw, stablecoinAddr, provider) => {
+    provider = new ethers.providers.Web3Provider(provider) // Change Web3 provider to Ethers provider
+    if (!ethers.BigNumber.isBigNumber(shareToWithdraw)) shareToWithdraw = new ethers.BigNumber.from(shareToWithdraw)
+
+    // amountOutMinPerc = 990
+
+    const deXStableVault = new ethers.Contract(deXStableVaultAddr, avaxStableVaultABI, provider)
+    const deXStableStrategy = new ethers.Contract(deXStableStrategyAddr, deXStableStrategyABI, provider)
+
+    const JOEUSDCVault = await ethers.getContractAt("AvaxVaultL1", JOEUSDCVaultAddr, deployer)
+    const PNGUSDTVault = await ethers.getContractAt("AvaxVaultL1", PNGUSDTVaultAddr, deployer)
+    const LYDDAIVault = await ethers.getContractAt("AvaxVaultL1", LYDDAIVaultAddr, deployer)
+
+    const joeRouter = new ethers.Contract(joeRouterAddr, router_ABI, provider)
+    const pngRouter = new ethers.Contract(pngRouterAddr, router_ABI, provider)
+    const lydRouter = new ethers.Contract(lydRouterAddr, router_ABI, provider)
+
+    // Vault
+    const allPoolInUSD = await deXStableVault.getAllPoolInUSD()
+    let withdrawAmt = (allPoolInUSD).mul(shareToWithdraw).div(await deXStableVault.totalSupply())
+    // Strategy
+    const oneEther = ethers.utils.parseEther("1")
+    const sharePerc = withdrawAmt.mul(oneEther).div(allPoolInUSD)
+    // JOE
+    const JOEUSDCAmt = (await JOEUSDCVault.balanceOf(deXStableStrategy.address)).mul(sharePerc).div(oneEther)
+    const JOEUSDCContract = new ethers.Contract(JOEUSDCAddr, pair_ABI, deployer)
+    const [JOEReserve,] = await JOEUSDCContract.getReserves()
+    const totalSupplyJOEUSDC = await JOEUSDCContract.totalSupply()
+    const JOEAmt = JOEReserve.mul(JOEUSDCAmt).div(totalSupplyJOEUSDC)
+    const USDCAmt = (await joeRouter.getAmountsOut(JOEAmt, [JOEAddr, USDCAddr]))[1]
+    const USDCAmtMin = USDCAmt.mul(amountOutMinPerc).div(1000)
+    // PNG
+    const PNGUSDTAmt = (await PNGUSDTVault.balanceOf(deXStableStrategy.address)).mul(sharePerc).div(oneEther)
+    const PNGUSDTContract = new ethers.Contract(PNGUSDTAddr, pair_ABI, deployer)
+    const [PNGReserve,] = await PNGUSDTContract.getReserves()
+    const totalSupplyPNGUSDT = await PNGUSDTContract.totalSupply()
+    const PNGAmt = PNGReserve.mul(PNGUSDTAmt).div(totalSupplyPNGUSDT)
+    const USDTAmt = (await pngRouter.getAmountsOut(PNGAmt, [PNGAddr, USDTAddr]))[1]
+    const USDTAmtMin = USDTAmt.mul(amountOutMinPerc).div(1000)
+    // LYD
+    const LYDDAIAmt = (await LYDDAIVault.balanceOf(deXStableStrategy.address)).mul(sharePerc).div(oneEther)
+    const LYDDAIContract = new ethers.Contract(LYDDAIAddr, pair_ABI, deployer)
+    const [LYDReserve,] = await LYDDAIContract.getReserves()
+    const totalSupplyLYDDAI = await LYDDAIContract.totalSupply()
+    const LYDAmt = LYDReserve.mul(LYDDAIAmt).div(totalSupplyLYDDAI)
+    const DAIAmt = (await lydRouter.getAmountsOut(LYDAmt, [LYDAddr, DAIAddr]))[1]
+    const DAIAmtMin = DAIAmt.mul(amountOutMinPerc).div(1000)
+
+    return [0, USDCAmtMin, USDTAmtMin, DAIAmtMin]
 }
 
 module.exports = {
     getAmountsOutMinDeXAvax,
+    getAmountsOutMinDeXStable,
 }

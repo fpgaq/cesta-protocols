@@ -55,7 +55,7 @@ const deXStableStrategyAddr = ""
 const stableAvaxVaultAddr = ""
 const stableAvaxStrategyAddr = ""
 
-const minimumOutputInPercentage = 995
+const amountOutMinPerc = 995
 
 const getAmountsOutMinDeXAvax = async (amountDeposit, stablecoinAddr, _provider) => {
     const provider = new ethers.providers.Web3Provider(_provider) // Change Web3 provider to Ethers provider
@@ -84,7 +84,7 @@ const getAmountsOutMinDeXAvax = async (amountDeposit, stablecoinAddr, _provider)
     if (amountDepositInWAVAX * 95 / 100 > parseFloat(ethers.utils.formatEther(WAVAXAmt))) {
         throw `Price impact occured (WAVAX): ${amountDepositInWAVAX * 95 / 100}, ${parseFloat(ethers.utils.formatEther(WAVAXAmt))}`
     }
-    const WAVAXAmtMin = WAVAXAmt.mul(minimumOutputInPercentage).div(1000)
+    const WAVAXAmtMin = WAVAXAmt.mul(amountOutMinPerc).div(1000)
 
     // Inside strategy
     const [pool0, pool1, pool2] = await deXAvaxStrategy.getEachPool()
@@ -104,7 +104,7 @@ const getAmountsOutMinDeXAvax = async (amountDeposit, stablecoinAddr, _provider)
         if (amountInvestJOEAVAXInUSD * 95 / 100 > JOEAmtInUSD) {
             throw `Price impact occured (JOE): ${amountInvestJOEAVAXInUSD * 95 / 100}, ${JOEAmtInUSD}`
         }
-        JOEAmtMin = JOEAmt.mul(minimumOutputInPercentage).div(1000)
+        JOEAmtMin = JOEAmt.mul(amountOutMinPerc).div(1000)
         // PNG
         const amountInvestPNGAVAX = PNGAVAXTargetPool.sub(pool1)
         const amountInvestPNGAVAXInUSD = parseFloat(ethers.utils.formatEther(amountInvestPNGAVAX.div(2))) * WAVAXPriceInUSD
@@ -113,16 +113,16 @@ const getAmountsOutMinDeXAvax = async (amountDeposit, stablecoinAddr, _provider)
         if (amountInvestPNGAVAXInUSD * 95 / 100 > PNGAmtInUSD) {
             throw `Price impact occured (PNG): ${amountInvestPNGAVAXInUSD * 95 / 100}, ${PNGAmtInUSD}`
         }
-        PNGAmtMin = PNGAmt.mul(minimumOutputInPercentage).div(1000)
+        PNGAmtMin = PNGAmt.mul(amountOutMinPerc).div(1000)
         // LYD
         const amountInvestLYDAVAX = LYDAVAXTargetPool.sub(pool2)
         const amountInvestLYDAVAXInUSD = parseFloat(ethers.utils.formatEther(amountInvestLYDAVAX.div(2))) * WAVAXPriceInUSD
         const LYDAmt = (await lydRouter.getAmountsOut(amountInvestLYDAVAX.div(2), [WAVAXAddr, LYDAddr]))[1]
         const LYDAmtInUSD = parseFloat(ethers.utils.formatEther(LYDAmt)) * LYDPriceInUSD
-        if (amountInvestLYDAVAXInUSD * 10 / 100 > LYDAmtInUSD) {
-            throw `Price impact occured (LYD): ${amountInvestLYDAVAXInUSD * 10 / 100}, ${LYDAmtInUSD}`
+        if (amountInvestLYDAVAXInUSD * 95 / 100 > LYDAmtInUSD) {
+            throw `Price impact occured (LYD): ${amountInvestLYDAVAXInUSD * 95 / 100}, ${LYDAmtInUSD}`
         }
-        LYDAmtMin = LYDAmt.mul(minimumOutputInPercentage).div(1000)
+        LYDAmtMin = LYDAmt.mul(amountOutMinPerc).div(1000)
     } else {
         let furthest, farmIndex, diff
         if (JOEAVAXTargetPool.gt(pool0)) {
@@ -151,26 +151,83 @@ const getAmountsOutMinDeXAvax = async (amountDeposit, stablecoinAddr, _provider)
             if (WAVAXAmtInUSD * 95 / 100 > JOEAmtInUSD) {
                 throw `Price impact occured (JOE): ${WAVAXAmtInUSD * 95 / 100}, ${JOEAmtInUSD}`
             }
-            JOEAmtMin = JOEAmt.mul(minimumOutputInPercentage).div(1000)
+            JOEAmtMin = JOEAmt.mul(amountOutMinPerc).div(1000)
         } else if (farmIndex == 1) {
             const PNGAmt = (await pngRouter.getAmountsOut(WAVAXAmt.div(2), [WAVAXAddr, PNGAddr]))[1]
             const PNGAmtInUSD = parseFloat(ethers.utils.formatEther(PNGAmt)) * PNGPriceInUSD
             if (WAVAXAmtInUSD * 95 / 100 > PNGAmtInUSD) {
                 throw `Price impact occured (PNG): ${WAVAXAmtInUSD * 95 / 100}, ${PNGAmtInUSD}`
             }
-            PNGAmtMin = PNGAmt.mul(minimumOutputInPercentage).div(1000)
+            PNGAmtMin = PNGAmt.mul(amountOutMinPerc).div(1000)
         } else {
             const LYDAmt = (await lydRouter.getAmountsOut(WAVAXAmt.div(2), [WAVAXAddr, LYDAddr]))[1]
             const LYDAmtInUSD = parseFloat(ethers.utils.formatEther(LYDAmt)) * LYDPriceInUSD
             if (WAVAXAmtInUSD * 95 / 100 > LYDAmtInUSD) {
                 throw `Price impact occured (LYD): ${WAVAXAmtInUSD * 95 / 100}, ${LYDAmtInUSD}`
             }
-            LYDAmtMin = LYDAmt.mul(minimumOutputInPercentage).div(1000)
+            LYDAmtMin = LYDAmt.mul(amountOutMinPerc).div(1000)
         }
     }
     return [WAVAXAmtMin, JOEAmtMin, PNGAmtMin, LYDAmtMin]
 }
 
+const getAmountsOutMinDeXStable = async (amountDeposit, stablecoinAddr, _provider) => {
+    const provider = new ethers.providers.Web3Provider(_provider) // Change Web3 provider to Ethers provider
+    if (!ethers.BigNumber.isBigNumber(amountDeposit)) amountDeposit = new ethers.BigNumber.from(amountDeposit)
+
+    // const deXStableVault = new ethers.Contract(deXStableVaultAddr, avaxVaultABI, provider)
+    // const deXStableStrategy = new ethers.Contract(deXStableStrategyAddr, deXStableStrategyABI, provider)
+
+    const joeRouter = new ethers.Contract(joeRouterAddr, router_ABI, provider)
+    const pngRouter = new ethers.Contract(pngRouterAddr, router_ABI, provider)
+    const lydRouter = new ethers.Contract(lydRouterAddr, router_ABI, provider)
+
+    // Fetch price from Coingecko
+    const res = await axios.get(`https://api.coingecko.com/api/v3/simple/token_price/avalanche?contract_addresses=${JOEAddr}%2C${PNGAddr}%2C${LYDAddr}&vs_currencies=usd`)
+    const JOEPriceInUSD = res.data[JOEAddr].usd
+    const PNGPriceInUSD = res.data[PNGAddr].usd
+    const LYDPriceInUSD = res.data[LYDAddr].usd
+
+    // Vault
+    // Assume all Stablecoins have same value
+    // Strategy
+    if (stablecoinAddr == DAIAddr) amountDeposit = amountDeposit.div(ethers.utils.parseUnits("1", 12))
+    // const [pool0, pool1, pool2] = await deXStableStrategy.getEachPool()
+    const [pool0, pool1, pool2] = [ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero]
+    const pool = pool0.add(pool1).add(pool2).add(amountDeposit)
+    const JOEUSDCTargetPool = pool.mul(8000).div(10000)
+    const PNGUSDTTargetPool = pool.mul(1000).div(10000)
+    const LYDDAITargetPool = PNGUSDTTargetPool
+    // Rebalancing - No rebalancing for this strategy for now
+    // JOE
+    const amountInvestJOEUSDC = JOEUSDCTargetPool.sub(pool0)
+    const idealJOEAmt = parseFloat(ethers.utils.formatUnits(amountInvestJOEUSDC.div(2), 6)) / JOEPriceInUSD
+    const JOEAmt = (await joeRouter.getAmountsOut(amountInvestJOEUSDC.div(2), [USDCAddr, JOEAddr]))[1]
+    if (idealJOEAmt * 95 / 100 > JOEAmt) {
+        throw `Price impact occured (JOE): ${idealJOEAmt * 95 / 100}, ${JOEAmt}`
+    }
+    JOEAmtMin = JOEAmt.mul(amountOutMinPerc).div(1000)
+    // PNG
+    const amountInvestPNGUSDT = PNGUSDTTargetPool.sub(pool1)
+    const idealPNGAmt = parseFloat(ethers.utils.formatUnits(amountInvestPNGUSDT.div(2), 6)) / PNGPriceInUSD
+    const PNGAmt = (await pngRouter.getAmountsOut(amountInvestPNGUSDT.div(2), [USDTAddr, PNGAddr]))[1]
+    if (idealPNGAmt * 95 / 100 > PNGAmt) {
+        throw `Price impact occured (PNG): ${idealPNGAmt * 95 / 100}, ${PNGAmt}`
+    }
+    PNGAmtMin = PNGAmt.mul(amountOutMinPerc).div(1000)
+    // LYD
+    const amountInvestLYDDAI = LYDDAITargetPool.sub(pool2)
+    const idealLYDAmt = parseFloat(ethers.utils.formatUnits(amountInvestLYDDAI.div(2), 6)) / LYDPriceInUSD
+    const LYDAmt = (await lydRouter.getAmountsOut(amountInvestLYDDAI.mul(ethers.utils.parseUnits("1", 12)).div(2), [DAIAddr, LYDAddr]))[1]
+    if (idealLYDAmt * 95 / 100 > LYDAmt) {
+        throw `Price impact occured (LYD): ${idealLYDAmt * 95 / 100}, ${LYDAmt}`
+    }
+    LYDAmtMin = LYDAmt.mul(amountOutMinPerc).div(1000)
+    
+    return [0, JOEAmtMin, PNGAmtMin, LYDAmtMin]
+}
+
 module.exports = {
     getAmountsOutMinDeXAvax,
+    getAmountsOutMinDeXStable,
 }
