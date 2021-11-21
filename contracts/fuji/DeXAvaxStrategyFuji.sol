@@ -47,7 +47,7 @@ interface IChainlink {
     function latestAnswer() external view returns (int256);
 }
 
-contract DeXAvaxStrategy is Initializable {
+contract DeXAvaxStrategyFuji is Initializable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IERC20Upgradeable constant WAVAX = IERC20Upgradeable(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7);
@@ -93,19 +93,19 @@ contract DeXAvaxStrategy is Initializable {
         PNGAVAXVault = IDaoL1Vault(_PNGAVAXVault);
         LYDAVAXVault = IDaoL1Vault(_LYDAVAXVault);
 
-        WAVAX.safeApprove(address(joeRouter), type(uint).max);
-        WAVAX.safeApprove(address(pngRouter), type(uint).max);
-        WAVAX.safeApprove(address(lydRouter), type(uint).max);
-        JOE.safeApprove(address(joeRouter), type(uint).max);
-        PNG.safeApprove(address(pngRouter), type(uint).max);
-        LYD.safeApprove(address(lydRouter), type(uint).max);
+        // WAVAX.safeApprove(address(joeRouter), type(uint).max);
+        // WAVAX.safeApprove(address(pngRouter), type(uint).max);
+        // WAVAX.safeApprove(address(lydRouter), type(uint).max);
+        // JOE.safeApprove(address(joeRouter), type(uint).max);
+        // PNG.safeApprove(address(pngRouter), type(uint).max);
+        // LYD.safeApprove(address(lydRouter), type(uint).max);
 
-        JOEAVAX.safeApprove(address(JOEAVAXVault), type(uint).max);
-        JOEAVAX.safeApprove(address(joeRouter), type(uint).max);
-        PNGAVAX.safeApprove(address(PNGAVAXVault), type(uint).max);
-        PNGAVAX.safeApprove(address(pngRouter), type(uint).max);
-        LYDAVAX.safeApprove(address(LYDAVAXVault), type(uint).max);
-        LYDAVAX.safeApprove(address(lydRouter), type(uint).max);
+        // JOEAVAX.safeApprove(address(JOEAVAXVault), type(uint).max);
+        // JOEAVAX.safeApprove(address(joeRouter), type(uint).max);
+        // PNGAVAX.safeApprove(address(PNGAVAXVault), type(uint).max);
+        // PNGAVAX.safeApprove(address(pngRouter), type(uint).max);
+        // LYDAVAX.safeApprove(address(LYDAVAXVault), type(uint).max);
+        // LYDAVAX.safeApprove(address(lydRouter), type(uint).max);
     }
 
     function invest(uint WAVAXAmt, uint[] calldata amountsOutMin) external onlyVault {

@@ -32,13 +32,13 @@ interface IStrategy {
     function getAllPoolInAVAX() external view returns (uint);
 }
 
-contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable, 
+contract AvaxVaultFuji is Initializable, ERC20Upgradeable, OwnableUpgradeable, 
         ReentrancyGuardUpgradeable, PausableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    IERC20Upgradeable constant USDT = IERC20Upgradeable(0xc7198437980c041c805A1EDcbA50c1Ce5db95118);
-    IERC20Upgradeable constant USDC = IERC20Upgradeable(0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664);
-    IERC20Upgradeable constant DAI = IERC20Upgradeable(0xd586E7F844cEa2F87f50152665BCbc2C279D8d70);
+    IERC20Upgradeable constant USDT = IERC20Upgradeable(0xE01A4D7de190f60F86b683661F67f79F134E0582);
+    IERC20Upgradeable constant USDC = IERC20Upgradeable(0xA6cFCa9EB181728082D35419B58Ba7eE4c9c8d38);
+    IERC20Upgradeable constant DAI = IERC20Upgradeable(0x3bc22AA42FF61fC2D01E87c2Fa4268D0334b1a4c);
     IERC20Upgradeable constant WAVAX = IERC20Upgradeable(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7);
 
     IRouter constant joeRouter = IRouter(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
@@ -51,7 +51,7 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     address public strategist;
 
     event Deposit(address caller, uint amtDeposit, address tokenDeposit);
-    event Withdraw(address caller, uint amtWithdraw, address tokenWithdraw, uint shareBurned, uint fees);
+    event Withdraw(address caller, uint amtWithdraw, address tokenWithdraw, uint shareBurned);
     event Invest(uint amount);
     event SetAddresses(
         address oldTreasuryWallet, address newTreasuryWallet,
@@ -78,11 +78,11 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         communityWallet = _communityWallet;
         admin = _admin;
 
-        USDT.safeApprove(address(joeRouter), type(uint).max);
-        USDC.safeApprove(address(joeRouter), type(uint).max);
-        DAI.safeApprove(address(joeRouter), type(uint).max);
-        WAVAX.safeApprove(address(joeRouter), type(uint).max);
-        WAVAX.safeApprove(address(strategy), type(uint).max);
+        // USDT.safeApprove(address(joeRouter), type(uint).max);
+        // USDC.safeApprove(address(joeRouter), type(uint).max);
+        // DAI.safeApprove(address(joeRouter), type(uint).max);
+        // WAVAX.safeApprove(address(joeRouter), type(uint).max);
+        // WAVAX.safeApprove(address(strategy), type(uint).max);
     }
 
     function deposit(uint amount, IERC20Upgradeable token, uint[] calldata amountsOutMin) external nonReentrant whenNotPaused {
@@ -93,12 +93,15 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         uint pool = getAllPoolInUSD();
         token.safeTransferFrom(msg.sender, address(this), amount);
         
-        uint WAVAXAmt = swap(address(token), address(WAVAX), amount, amountsOutMin[0]);
-        strategy.invest(WAVAXAmt, amountsOutMin);
+        // uint WAVAXAmt = swap(address(token), address(WAVAX), amount, amountsOutMin[0]);
+        // strategy.invest(WAVAXAmt, amountsOutMin);
+        amountsOutMin;
         
         uint _totalSupply = totalSupply();
-        uint depositAmtAfterSlippage = _totalSupply == 0 ? getAllPoolInUSD() : getAllPoolInUSD() - pool;
-        uint share = _totalSupply == 0 ? depositAmtAfterSlippage : depositAmtAfterSlippage * _totalSupply / pool;
+        // uint depositAmtAfterSlippage = _totalSupply == 0 ? getAllPoolInUSD() : getAllPoolInUSD() - pool;
+        // uint share = _totalSupply == 0 ? depositAmtAfterSlippage : depositAmtAfterSlippage * _totalSupply / pool;
+        if (token != DAI) amount *= 1e12;
+        uint share = _totalSupply == 0 ? amount : amount * _totalSupply / pool;
         _mint(msg.sender, share);
 
         emit Deposit(msg.sender, amount, address(token));
@@ -117,8 +120,10 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
             uint amtWithdrawInWAVAX = WAVAX.balanceOf(address(this)) * share / _totalSupply;
             withdrawAmt = swap(address(WAVAX), address(token), amtWithdrawInWAVAX, amountsOutMin[0]);
         } else {
-            strategy.withdraw(withdrawAmt, amountsOutMin);
-            withdrawAmt = swap(address(WAVAX), address(token), WAVAX.balanceOf(address(this)), amountsOutMin[0]);
+            // strategy.withdraw(withdrawAmt, amountsOutMin);
+            // withdrawAmt = swap(address(WAVAX), address(token), WAVAX.balanceOf(address(this)), amountsOutMin[0]);
+            if (token != DAI) withdrawAmt = share / 1e12;
+            else withdrawAmt = share;
         }
 
         uint fees = withdrawAmt * 1 / 100; // 1%
@@ -127,7 +132,7 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
         token.safeTransfer(msg.sender, withdrawAmt);
 
-        emit Withdraw(msg.sender, withdrawAmt, address(token), share, fees);
+        emit Withdraw(msg.sender, withdrawAmt, address(token), share);
     }
 
     function emergencyWithdraw() external onlyOwnerOrAdmin whenNotPaused {
@@ -163,11 +168,12 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
     function getAllPoolInUSD() public view returns (uint) {
         // AVAXPriceInUSD amount in 8 decimals
-        uint AVAXPriceInUSD = uint(IChainlink(0x0A77230d17318075983913bC2145DB16C7366156).latestAnswer());
-        require(AVAXPriceInUSD > 0, "ChainLink error");
+        // uint AVAXPriceInUSD = uint(IChainlink(0x0A77230d17318075983913bC2145DB16C7366156).latestAnswer());
+        // require(AVAXPriceInUSD > 0, "ChainLink error");
 
-        if (paused()) return WAVAX.balanceOf(address(this)) * AVAXPriceInUSD / 1e8;
-        return strategy.getAllPoolInAVAX() * AVAXPriceInUSD / 1e8;
+        // if (paused()) return WAVAX.balanceOf(address(this)) * AVAXPriceInUSD / 1e8;
+        // return strategy.getAllPoolInAVAX() * AVAXPriceInUSD / 1e8;
+        return USDT.balanceOf(address(this)) * 1e12 + USDC.balanceOf(address(this)) * 1e12 + DAI.balanceOf(address(this));
     }
 
     /// @notice Can be use for calculate both user shares & APR    

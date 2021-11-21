@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle")
+require("@nomiclabs/hardhat-etherscan")
 require('@openzeppelin/hardhat-upgrades');
 require("dotenv").config()
 
@@ -7,7 +8,7 @@ module.exports = {
         hardhat: {
             forking: {
                 url: "https://api.avax.network/ext/bc/C/rpc",
-                blockNumber: 6474469,
+                blockNumber: 7231460,
             },
         },
         mainnet: {
@@ -18,6 +19,9 @@ module.exports = {
             url: "https://api.avax-test.network/ext/bc/C/rpc",
             accounts: [`0x${process.env.PRIVATE_KEY}`],
         },
+    },
+    etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY,
     },
     solidity: {
         compilers: [
