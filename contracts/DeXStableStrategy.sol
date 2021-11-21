@@ -70,8 +70,6 @@ contract DeXStableStrategy is Initializable {
     IDaoL1Vault public LYDDAIVault;
 
     address public vault;
-    uint public watermark; // In USD (18 decimals)
-    uint public profitFeePerc;
 
     event TargetComposition (uint JOEUSDCTargetPool, uint PNGUSDTTargetPool, uint LYDDAITargetPool);
     event CurrentComposition (uint JOEUSDCCCurrentPool, uint PNGUSDTCurrentPool, uint LYDDAICurrentPool);
@@ -82,9 +80,6 @@ contract DeXStableStrategy is Initializable {
     event WithdrawJOEUSDC(uint lpTokenAmt, uint USDAmt);
     event WithdrawPNGUSDT(uint lpTokenAmt, uint USDAmt);
     event WithdrawLYDDAI(uint lpTokenAmt, uint USDAmt);
-    event CollectProfitAndUpdateWatermark(uint currentWatermark, uint lastWatermark, uint fee);
-    event AdjustWatermark(uint currentWatermark, uint lastWatermark);
-    event Reimburse(uint USDAmt);
     event EmergencyWithdraw(uint USDAmt);
 
     modifier onlyVault {
@@ -99,8 +94,6 @@ contract DeXStableStrategy is Initializable {
         JOEUSDCVault = IDaoL1Vault(_JOEUSDCVault);
         PNGUSDTVault = IDaoL1Vault(_PNGUSDTVault);
         LYDDAIVault = IDaoL1Vault(_LYDDAIVault);
-
-        profitFeePerc = 2000;
 
         USDC.safeApprove(address(joeRouter), type(uint).max);
         USDC.safeApprove(address(curve), type(uint).max);
@@ -127,13 +120,13 @@ contract DeXStableStrategy is Initializable {
         uint pool = pools[0] + pools[1] + pools[2] + USDTAmt;
         uint JOEUSDCTargetPool = pool * 8000 / 10000;
         uint PNGUSDTTargetPool = pool * 1000 / 10000;
-        uint LYDDAITargetPool = pool * 1000 / 10000;
+        uint LYDDAITargetPool = PNGUSDTTargetPool;
 
         // For this pool we don't rebalancing invest it first
         // since liquidity in PNG-USDT and LYD-DAI still quite low
-        investJOEUSDC(USDTAmt * 8000 / 10000, amountsOutMin[3]);
-        investPNGUSDT(USDTAmt * 1000 / 10000, amountsOutMin[4]);
-        investLYDDAI(USDTAmt * 1000 / 10000, amountsOutMin[5]);
+        investJOEUSDC(USDTAmt * 8000 / 10000, amountsOutMin[1]);
+        investPNGUSDT(USDTAmt * 1000 / 10000, amountsOutMin[2]);
+        investLYDDAI(USDTAmt * 1000 / 10000, amountsOutMin[3]);
 
         // // Rebalancing invest
         // if (
@@ -169,9 +162,9 @@ contract DeXStableStrategy is Initializable {
         //         }
         //     }
 
-        //     if (farmIndex == 0) investJOEUSDC(USDTAmt, amountsOutMin[3]);
-        //     else if (farmIndex == 1) investPNGUSDT(USDTAmt, amountsOutMin[4]);
-        //     else investLYDDAI(USDTAmt, amountsOutMin[5]);
+        //     if (farmIndex == 0) investJOEUSDC(USDTAmt, amountsOutMin[1]);
+        //     else if (farmIndex == 1) investPNGUSDT(USDTAmt, amountsOutMin[2]);
+        //     else investLYDDAI(USDTAmt, amountsOutMin[3]);
         // }
 
         emit TargetComposition(JOEUSDCTargetPool, PNGUSDTTargetPool, LYDDAITargetPool);
@@ -296,38 +289,6 @@ contract DeXStableStrategy is Initializable {
         emit WithdrawLYDDAI(LYDDAIAmt, USDTAmt);
     }
 
-    function collectProfitAndUpdateWatermark() public onlyVault returns (uint fee) {
-        uint currentWatermark = getAllPoolInUSD();
-        uint lastWatermark = watermark;
-        if (currentWatermark > lastWatermark) {
-            uint profit = currentWatermark - lastWatermark;
-            fee = profit * profitFeePerc / 10000;
-            watermark = currentWatermark;
-        }
-
-        emit CollectProfitAndUpdateWatermark(currentWatermark, lastWatermark, fee);
-    }
-
-    /// @param signs True for positive, false for negative
-    function adjustWatermark(uint amount, bool signs) external onlyVault {
-        uint lastWatermark = watermark;
-        watermark = signs == true ? watermark + amount : watermark - amount;
-
-        emit AdjustWatermark(watermark, lastWatermark);
-    }
-
-    /// @param amount Amount to reimburse to vault contract in USDT
-    function reimburse(uint farmIndex, uint amount, uint amountOutMin) external onlyVault returns (uint USDTAmt) {
-        if (farmIndex == 0) withdrawJOEUSDC(amount * 1e18 / getJOEUSDCPool(), amountOutMin);
-        else if (farmIndex == 1) withdrawPNGUSDT(amount * 1e18 / getPNGUSDTPool(), amountOutMin);
-        else if (farmIndex == 2) withdrawLYDDAI(amount * 1e18 / getLYDDAIPool(), amountOutMin);
-
-        USDTAmt = USDT.balanceOf(address(this));
-        USDT.safeTransfer(vault, USDTAmt);
-
-        emit Reimburse(USDTAmt);
-    }
-
     function emergencyWithdraw() external onlyVault {
         // 1e18 == 100% of share
         withdrawJOEUSDC(1e18, 0);
@@ -336,7 +297,6 @@ contract DeXStableStrategy is Initializable {
 
         uint USDTAmt = USDT.balanceOf(address(this));
         USDT.safeTransfer(vault, USDTAmt);
-        watermark = 0;
 
         emit EmergencyWithdraw(USDTAmt);
     }
@@ -344,10 +304,6 @@ contract DeXStableStrategy is Initializable {
     function setVault(address _vault) external {
         require(vault == address(0), "Vault set");
         vault = _vault;
-    }
-
-    function setProfitFeePerc(uint _profitFeePerc) external onlyVault {
-        profitFeePerc = _profitFeePerc;
     }
 
     function getPath(address tokenA, address tokenB) private pure returns (address[] memory path) {
@@ -380,7 +336,7 @@ contract DeXStableStrategy is Initializable {
         return LYDDAIVaultPool * LYDDAIVault.balanceOf(address(this)) / LYDDAIVault.totalSupply();
     }
 
-    function getEachPool() private view returns (uint[] memory pools) {
+    function getEachPool() public view returns (uint[] memory pools) {
         pools = new uint[](3);
         pools[0] = getJOEUSDCPool();
         pools[1] = getPNGUSDTPool();

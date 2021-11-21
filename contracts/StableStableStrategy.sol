@@ -65,8 +65,6 @@ contract StableStableStrategy is Initializable {
     IDaoL1Vault public USDCDAIVault;
 
     address public vault;
-    uint public watermark; // In USD (18 decimals)
-    uint public profitFeePerc;
 
     event InvestUSDTUSDC(uint USDAmt, uint USDTUSDCAmt);
     event InvestUSDTDAI(uint USDAmt, uint USDTDAIAmt);
@@ -75,9 +73,6 @@ contract StableStableStrategy is Initializable {
     event WithdrawUSDTUSDC(uint lpTokenAmt, uint USDAmt);
     event WithdrawUSDTDAI(uint lpTokenAmt, uint USDAmt);
     event WithdrawUSDCDAI(uint lpTokenAmt, uint USDAmt);
-    event CollectProfitAndUpdateWatermark(uint currentWatermark, uint lastWatermark, uint fee);
-    event AdjustWatermark(uint currentWatermark, uint lastWatermark);
-    event Reimburse(uint USDAmt);
     event EmergencyWithdraw(uint USDAmt);
 
     modifier onlyVault {
@@ -92,8 +87,6 @@ contract StableStableStrategy is Initializable {
         USDTUSDCVault = IDaoL1Vault(_USDTUSDCVault);
         USDTDAIVault = IDaoL1Vault(_USDTDAIVault);
         USDCDAIVault = IDaoL1Vault(_USDCDAIVault);
-
-        profitFeePerc = 2000;
 
         USDC.safeApprove(address(joeRouter), type(uint).max);
         USDC.safeApprove(address(curve), type(uint).max);
@@ -228,40 +221,6 @@ contract StableStableStrategy is Initializable {
         emit WithdrawUSDCDAI(USDCDAIAmt, USDTAmt);
     }
 
-    function collectProfitAndUpdateWatermark() public onlyVault returns (uint fee) {
-        uint currentWatermark = getAllPoolInUSD();
-        uint lastWatermark = watermark;
-        if (currentWatermark > lastWatermark) {
-            uint profit = currentWatermark - lastWatermark;
-            fee = profit * profitFeePerc / 10000;
-            watermark = currentWatermark;
-        }
-
-        emit CollectProfitAndUpdateWatermark(currentWatermark, lastWatermark, fee);
-    }
-
-    /// @param signs True for positive, false for negative
-    function adjustWatermark(uint amount, bool signs) external onlyVault {
-        uint lastWatermark = watermark;
-        watermark = signs == true ? watermark + amount : watermark - amount;
-
-        emit AdjustWatermark(watermark, lastWatermark);
-    }
-
-    /// @param amount Amount to reimburse to vault contract in USDT
-    function reimburse(uint farmIndex, uint amount, uint amountsOutMin) external onlyVault returns (uint USDTAmt) {
-        if (farmIndex == 0) withdrawUSDTUSDC(amount * 1e18 / getUSDTUSDCPool());
-        else if (farmIndex == 1) withdrawUSDTDAI(amount * 1e18 / getUSDTDAIPool());
-        else if (farmIndex == 2) withdrawUSDCDAI(amount * 1e18 / getUSDCDAIPool());
-
-        USDTAmt = USDT.balanceOf(address(this));
-        USDT.safeTransfer(vault, USDTAmt);
-
-        amountsOutMin; // To remove unused variable warning
-
-        emit Reimburse(USDTAmt);
-    }
-
     function emergencyWithdraw() external onlyVault {
         // 1e18 == 100% of share
         withdrawUSDTUSDC(1e18);
@@ -270,7 +229,6 @@ contract StableStableStrategy is Initializable {
 
         uint USDTAmt = USDT.balanceOf(address(this));
         USDT.safeTransfer(vault, USDTAmt);
-        watermark = 0;
 
         emit EmergencyWithdraw(USDTAmt);
     }
@@ -278,10 +236,6 @@ contract StableStableStrategy is Initializable {
     function setVault(address _vault) external {
         require(vault == address(0), "Vault set");
         vault = _vault;
-    }
-
-    function setProfitFeePerc(uint _profitFeePerc) external onlyVault {
-        profitFeePerc = _profitFeePerc;
     }
 
     function getPath(address tokenA, address tokenB) private pure returns (address[] memory path) {
@@ -314,7 +268,7 @@ contract StableStableStrategy is Initializable {
         return USDCDAIVaultPool * USDCDAIVault.balanceOf(address(this)) / USDCDAIVault.totalSupply();
     }
 
-    function getEachPool() private view returns (uint[] memory pools) {
+    function getEachPool() public view returns (uint[] memory pools) {
         pools = new uint[](3);
         pools[0] = getUSDTUSDCPool();
         pools[1] = getUSDTDAIPool();

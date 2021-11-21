@@ -4,7 +4,6 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "hardhat/console.sol";
 
 interface IRouter {
     function swapExactTokensForTokens(
@@ -48,7 +47,7 @@ interface IDaoL1Vault is IERC20Upgradeable {
     function getAllPoolInUSD() external view returns (uint);
 }
 
-contract StableAvaxStrategy is Initializable {
+contract StableAvaxStrategyFuji is Initializable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IERC20Upgradeable constant USDT = IERC20Upgradeable(0xc7198437980c041c805A1EDcbA50c1Ce5db95118);
@@ -93,22 +92,22 @@ contract StableAvaxStrategy is Initializable {
         USDCAVAXVault = IDaoL1Vault(_USDCAVAXVault);
         DAIAVAXVault = IDaoL1Vault(_DAIAVAXVault);
 
-        USDT.safeApprove(address(lydRouter), type(uint).max);
-        USDT.safeApprove(address(curve), type(uint).max);
-        USDC.safeApprove(address(pngRouter), type(uint).max);
-        USDC.safeApprove(address(curve), type(uint).max);
-        DAI.safeApprove(address(joeRouter), type(uint).max);
-        DAI.safeApprove(address(curve), type(uint).max);
-        WAVAX.safeApprove(address(lydRouter), type(uint).max);
-        WAVAX.safeApprove(address(pngRouter), type(uint).max);
-        WAVAX.safeApprove(address(joeRouter), type(uint).max);
+        // USDT.safeApprove(address(lydRouter), type(uint).max);
+        // USDT.safeApprove(address(curve), type(uint).max);
+        // USDC.safeApprove(address(pngRouter), type(uint).max);
+        // USDC.safeApprove(address(curve), type(uint).max);
+        // DAI.safeApprove(address(joeRouter), type(uint).max);
+        // DAI.safeApprove(address(curve), type(uint).max);
+        // WAVAX.safeApprove(address(lydRouter), type(uint).max);
+        // WAVAX.safeApprove(address(pngRouter), type(uint).max);
+        // WAVAX.safeApprove(address(joeRouter), type(uint).max);
 
-        USDTAVAX.safeApprove(address(USDTAVAXVault), type(uint).max);
-        USDTAVAX.safeApprove(address(lydRouter), type(uint).max);
-        USDCAVAX.safeApprove(address(USDCAVAXVault), type(uint).max);
-        USDCAVAX.safeApprove(address(pngRouter), type(uint).max);
-        DAIAVAX.safeApprove(address(DAIAVAXVault), type(uint).max);
-        DAIAVAX.safeApprove(address(joeRouter), type(uint).max);
+        // USDTAVAX.safeApprove(address(USDTAVAXVault), type(uint).max);
+        // USDTAVAX.safeApprove(address(lydRouter), type(uint).max);
+        // USDCAVAX.safeApprove(address(USDCAVAXVault), type(uint).max);
+        // USDCAVAX.safeApprove(address(pngRouter), type(uint).max);
+        // DAIAVAX.safeApprove(address(DAIAVAXVault), type(uint).max);
+        // DAIAVAX.safeApprove(address(joeRouter), type(uint).max);
     }
 
     function invest(uint USDTAmt, uint[] calldata amountsOutMin) external onlyVault {
@@ -131,9 +130,6 @@ contract StableAvaxStrategy is Initializable {
             address(USDT), address(WAVAX), halfUSDT, WAVAXAmt, 0, 0, address(this), block.timestamp
         );
 
-        // console.log(USDTAVAXAmt);
-        // console.log(address(USDTAVAXVault));
-        // console.log(USDTAVAX.balanceOf(address(this)));
         USDTAVAXVault.deposit(USDTAVAXAmt);
 
         emit InvestUSDTAVAX(USDTAmt, USDTAVAXAmt);

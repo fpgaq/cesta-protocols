@@ -4,6 +4,7 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "hardhat/console.sol";
 
 interface IRouter {
     function swapExactTokensForTokens(
@@ -69,8 +70,6 @@ contract StableAvaxStrategy is Initializable {
     IDaoL1Vault public DAIAVAXVault;
 
     address public vault;
-    uint public watermark; // In USD (18 decimals)
-    uint public profitFeePerc;
 
     event InvestUSDTAVAX(uint USDAmt, uint USDTAVAXAmt);
     event InvestUSDCAVAX(uint USDAmt, uint USDCAVAXAmt);
@@ -79,9 +78,6 @@ contract StableAvaxStrategy is Initializable {
     event WithdrawUSDTAVAX(uint lpTokenAmt, uint USDAmt);
     event WithdrawUSDCAVAX(uint lpTokenAmt, uint USDAmt);
     event WithdrawDAIAVAX(uint lpTokenAmt, uint USDAmt);
-    event CollectProfitAndUpdateWatermark(uint currentWatermark, uint lastWatermark, uint fee);
-    event AdjustWatermark(uint currentWatermark, uint lastWatermark);
-    event Reimburse(uint USDAmt);
     event EmergencyWithdraw(uint USDAmt);
 
     modifier onlyVault {
@@ -96,8 +92,6 @@ contract StableAvaxStrategy is Initializable {
         USDTAVAXVault = IDaoL1Vault(_USDTAVAXVault);
         USDCAVAXVault = IDaoL1Vault(_USDCAVAXVault);
         DAIAVAXVault = IDaoL1Vault(_DAIAVAXVault);
-
-        profitFeePerc = 2000;
 
         USDT.safeApprove(address(lydRouter), type(uint).max);
         USDT.safeApprove(address(curve), type(uint).max);
@@ -121,9 +115,9 @@ contract StableAvaxStrategy is Initializable {
         USDT.safeTransferFrom(vault, address(this), USDTAmt);
 
         // Stablecoins-AVAX farm don't need rebalance invest
-        investUSDTAVAX(USDTAmt * 500 / 10000, amountsOutMin[3]);
-        investUSDCAVAX(USDTAmt * 4500 / 10000, amountsOutMin[4]);
-        investDAIAVAX(USDTAmt * 5000 / 10000, amountsOutMin[5]);
+        investUSDTAVAX(USDTAmt * 500 / 10000, amountsOutMin[1]);
+        investUSDCAVAX(USDTAmt * 4500 / 10000, amountsOutMin[2]);
+        investDAIAVAX(USDTAmt * 5000 / 10000, amountsOutMin[3]);
     }
 
     function investUSDTAVAX(uint USDTAmt, uint amountOutMin) private {
@@ -137,6 +131,9 @@ contract StableAvaxStrategy is Initializable {
             address(USDT), address(WAVAX), halfUSDT, WAVAXAmt, 0, 0, address(this), block.timestamp
         );
 
+        // console.log(USDTAVAXAmt);
+        // console.log(address(USDTAVAXVault));
+        // console.log(USDTAVAX.balanceOf(address(this)));
         USDTAVAXVault.deposit(USDTAVAXAmt);
 
         emit InvestUSDTAVAX(USDTAmt, USDTAVAXAmt);
@@ -245,38 +242,6 @@ contract StableAvaxStrategy is Initializable {
         emit WithdrawDAIAVAX(DAIAVAXAmt, USDTAmt);
     }
 
-    function collectProfitAndUpdateWatermark() public onlyVault returns (uint fee) {
-        uint currentWatermark = getAllPoolInUSD();
-        uint lastWatermark = watermark;
-        if (currentWatermark > lastWatermark) {
-            uint profit = currentWatermark - lastWatermark;
-            fee = profit * profitFeePerc / 10000;
-            watermark = currentWatermark;
-        }
-
-        emit CollectProfitAndUpdateWatermark(currentWatermark, lastWatermark, fee);
-    }
-
-    /// @param signs True for positive, false for negative
-    function adjustWatermark(uint amount, bool signs) external onlyVault {
-        uint lastWatermark = watermark;
-        watermark = signs == true ? watermark + amount : watermark - amount;
-
-        emit AdjustWatermark(watermark, lastWatermark);
-    }
-
-    /// @param amount Amount to reimburse to vault contract in USDT
-    function reimburse(uint farmIndex, uint amount, uint tokenPriceMin) external onlyVault returns (uint USDTAmt) {
-        if (farmIndex == 0) withdrawUSDTAVAX(amount * 1e18 / getUSDTAVAXPool(), tokenPriceMin);
-        else if (farmIndex == 1) withdrawUSDCAVAX(amount * 1e18 / getUSDCAVAXPool(), tokenPriceMin);
-        else if (farmIndex == 2) withdrawDAIAVAX(amount * 1e18 / getDAIAVAXPool(), tokenPriceMin);
-
-        USDTAmt = USDT.balanceOf(address(this));
-        USDT.safeTransfer(vault, USDTAmt);
-
-        emit Reimburse(USDTAmt);
-    }
-
     function emergencyWithdraw() external onlyVault {
         // 1e18 == 100% of share
         withdrawUSDTAVAX(1e18, 0);
@@ -285,7 +250,6 @@ contract StableAvaxStrategy is Initializable {
 
         uint USDTAmt = USDT.balanceOf(address(this));
         USDT.safeTransfer(vault, USDTAmt);
-        watermark = 0;
 
         emit EmergencyWithdraw(USDTAmt);
     }
@@ -293,10 +257,6 @@ contract StableAvaxStrategy is Initializable {
     function setVault(address _vault) external {
         require(vault == address(0), "Vault set");
         vault = _vault;
-    }
-
-    function setProfitFeePerc(uint _profitFeePerc) external onlyVault {
-        profitFeePerc = _profitFeePerc;
     }
 
     function getPath(address tokenA, address tokenB) private pure returns (address[] memory path) {
@@ -329,7 +289,7 @@ contract StableAvaxStrategy is Initializable {
         return DAIAVAXVaultPool * DAIAVAXVault.balanceOf(address(this)) / DAIAVAXVault.totalSupply();
     }
 
-    function getEachPool() private view returns (uint[] memory pools) {
+    function getEachPool() public view returns (uint[] memory pools) {
         pools = new uint[](3);
         pools[0] = getUSDTAVAXPool();
         pools[1] = getUSDCAVAXPool();

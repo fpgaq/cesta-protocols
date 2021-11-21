@@ -46,7 +46,7 @@ interface IDaoL1Vault is IERC20Upgradeable {
     function getAllPoolInUSD() external view returns (uint);
 }
 
-contract StableStableStrategy is Initializable {
+contract StableStableStrategyFuji is Initializable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IERC20Upgradeable constant USDT = IERC20Upgradeable(0xc7198437980c041c805A1EDcbA50c1Ce5db95118);
@@ -88,19 +88,19 @@ contract StableStableStrategy is Initializable {
         USDTDAIVault = IDaoL1Vault(_USDTDAIVault);
         USDCDAIVault = IDaoL1Vault(_USDCDAIVault);
 
-        USDC.safeApprove(address(joeRouter), type(uint).max);
-        USDC.safeApprove(address(curve), type(uint).max);
-        USDT.safeApprove(address(joeRouter), type(uint).max);
-        USDT.safeApprove(address(curve), type(uint).max);
-        DAI.safeApprove(address(joeRouter), type(uint).max);
-        DAI.safeApprove(address(curve), type(uint).max);
+        // USDC.safeApprove(address(joeRouter), type(uint).max);
+        // USDC.safeApprove(address(curve), type(uint).max);
+        // USDT.safeApprove(address(joeRouter), type(uint).max);
+        // USDT.safeApprove(address(curve), type(uint).max);
+        // DAI.safeApprove(address(joeRouter), type(uint).max);
+        // DAI.safeApprove(address(curve), type(uint).max);
 
-        USDTUSDC.safeApprove(address(USDTUSDCVault), type(uint).max);
-        USDTUSDC.safeApprove(address(joeRouter), type(uint).max);
-        USDTDAI.safeApprove(address(USDTDAIVault), type(uint).max);
-        USDTDAI.safeApprove(address(joeRouter), type(uint).max);
-        USDCDAI.safeApprove(address(USDCDAIVault), type(uint).max);
-        USDCDAI.safeApprove(address(joeRouter), type(uint).max);
+        // USDTUSDC.safeApprove(address(USDTUSDCVault), type(uint).max);
+        // USDTUSDC.safeApprove(address(joeRouter), type(uint).max);
+        // USDTDAI.safeApprove(address(USDTDAIVault), type(uint).max);
+        // USDTDAI.safeApprove(address(joeRouter), type(uint).max);
+        // USDCDAI.safeApprove(address(USDCDAIVault), type(uint).max);
+        // USDCDAI.safeApprove(address(joeRouter), type(uint).max);
     }
 
     function invest(uint USDTAmt, uint[] calldata amountsOutMin) external onlyVault {

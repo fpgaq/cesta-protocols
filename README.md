@@ -119,27 +119,27 @@ Cesta Avalanche DeXToken-AVAX vault (proxy) contract address: 0xe1964BDd447ee6f0
 
 #### DeXToken-Stablecoin
 
-Cesta Avalanche DeXToken-Stablecoin strategy (implementation) contract address: 
+Cesta Avalanche DeXToken-Stablecoin strategy (implementation) contract address: 0xf544e122CD4657b52820B44Bfe501e2330546BC6
 
-Cesta Avalanche DeXToken-Stablecoin strategy (proxy) contract address: 
+Cesta Avalanche DeXToken-Stablecoin strategy (proxy) contract address: 0xA973E2a3E5969090f165Fc94f61aa2Ad94611bDd
 
-Cesta Avalanche DeXToken-Stablecoin vault (proxy) contract address: 
+Cesta Avalanche DeXToken-Stablecoin vault (proxy) contract address: 0x849DBe4417E03534cB15F48c996219FC07B69008
 
 #### Stablecoin-AVAX
 
-Cesta Avalanche Stablecoin-AVAX strategy (implementation) contract address: 
+Cesta Avalanche Stablecoin-AVAX strategy (implementation) contract address: 0x193b83E8cC108c86362E47A4c2D3048837D4996E
 
-Cesta Avalanche Stablecoin-AVAX strategy (proxy) contract address: 
+Cesta Avalanche Stablecoin-AVAX strategy (proxy) contract address: 0x0c9Ddf949e32221612145807e34483Ccf946B2b9
 
-Cesta Avalanche Stablecoin-AVAX vault (proxy) contract address: 
+Cesta Avalanche Stablecoin-AVAX vault (proxy) contract address: 0x67aB7059b33e5958a6a2fd5C2270DD1D3cb617d5
 
 #### Stablecoin-Stablecoin
 
-Cesta Avalanche Stablecoin-Stablecoin strategy (implementation) contract address: 
+Cesta Avalanche Stablecoin-Stablecoin strategy (implementation) contract address: 0x8E7aFDEf6A99E3628075D6d05c38B8E8Ab6d8df9
 
-Cesta Avalanche Stablecoin-Stablecoin strategy (proxy) contract address: 
+Cesta Avalanche Stablecoin-Stablecoin strategy (proxy) contract address: 0xaa9a91A2C89cDdF4294AE1B26C0259C6DeAF77Ae
 
-Cesta Avalanche Stablecoin-Stablecoin vault (proxy) contract address: 
+Cesta Avalanche Stablecoin-Stablecoin vault (proxy) contract address: 0xd4878232C5967924472f62B45df2e43a5aCD6507
 
 #### Vault implementation
 

@@ -55,11 +55,6 @@ describe("Cesta Avalanche", function () {
         // const avaxVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
         // await avaxVaultL1Factory.connect(admin).updateLogic(avaxVaultL1Impl.address)
 
-        // Set lower yield fee
-        // await JOEAVAXVault.connect(admin).setFee(1000, 1000)
-        // await PNGAVAXVault.connect(admin).setFee(1000, 1000)
-        // await LYDAVAXVault.connect(admin).setFee(1000, 1000)
-
         // Proxy admin
         // const proxyAdmin = await ethers.getContractAt("DAOProxyAdmin", "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E", deployer)
 
@@ -105,6 +100,7 @@ describe("Cesta Avalanche", function () {
         // const avaxVaultImpl = await avaxVaultFac.deploy()
         // await proxyAdmin.connect(admin).upgrade(avaxVaultProxyAddr, avaxVaultImpl.address)
 
+        // Set vault
         // await deXAvaxStrategy.connect(admin).setVault(avaxVault.address)
 
         // Set whitelist

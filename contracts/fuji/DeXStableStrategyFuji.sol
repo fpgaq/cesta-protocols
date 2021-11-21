@@ -46,7 +46,7 @@ interface IDaoL1Vault is IERC20Upgradeable {
     function getAllPoolInUSD() external view returns (uint);
 }
 
-contract DeXStableStrategy is Initializable {
+contract DeXStableStrategyFuji is Initializable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IERC20Upgradeable constant JOE = IERC20Upgradeable(0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd);
@@ -95,22 +95,22 @@ contract DeXStableStrategy is Initializable {
         PNGUSDTVault = IDaoL1Vault(_PNGUSDTVault);
         LYDDAIVault = IDaoL1Vault(_LYDDAIVault);
 
-        USDC.safeApprove(address(joeRouter), type(uint).max);
-        USDC.safeApprove(address(curve), type(uint).max);
-        USDT.safeApprove(address(pngRouter), type(uint).max);
-        USDT.safeApprove(address(curve), type(uint).max);
-        DAI.safeApprove(address(lydRouter), type(uint).max);
-        DAI.safeApprove(address(curve), type(uint).max);
-        JOE.safeApprove(address(joeRouter), type(uint).max);
-        PNG.safeApprove(address(pngRouter), type(uint).max);
-        LYD.safeApprove(address(lydRouter), type(uint).max);
+        // USDC.safeApprove(address(joeRouter), type(uint).max);
+        // USDC.safeApprove(address(curve), type(uint).max);
+        // USDT.safeApprove(address(pngRouter), type(uint).max);
+        // USDT.safeApprove(address(curve), type(uint).max);
+        // DAI.safeApprove(address(lydRouter), type(uint).max);
+        // DAI.safeApprove(address(curve), type(uint).max);
+        // JOE.safeApprove(address(joeRouter), type(uint).max);
+        // PNG.safeApprove(address(pngRouter), type(uint).max);
+        // LYD.safeApprove(address(lydRouter), type(uint).max);
 
-        JOEUSDC.safeApprove(address(JOEUSDCVault), type(uint).max);
-        JOEUSDC.safeApprove(address(joeRouter), type(uint).max);
-        PNGUSDT.safeApprove(address(PNGUSDTVault), type(uint).max);
-        PNGUSDT.safeApprove(address(pngRouter), type(uint).max);
-        LYDDAI.safeApprove(address(LYDDAIVault), type(uint).max);
-        LYDDAI.safeApprove(address(lydRouter), type(uint).max);
+        // JOEUSDC.safeApprove(address(JOEUSDCVault), type(uint).max);
+        // JOEUSDC.safeApprove(address(joeRouter), type(uint).max);
+        // PNGUSDT.safeApprove(address(PNGUSDTVault), type(uint).max);
+        // PNGUSDT.safeApprove(address(pngRouter), type(uint).max);
+        // LYDDAI.safeApprove(address(LYDDAIVault), type(uint).max);
+        // LYDDAI.safeApprove(address(lydRouter), type(uint).max);
     }
 
     function invest(uint USDTAmt, uint[] calldata amountsOutMin) external onlyVault {
