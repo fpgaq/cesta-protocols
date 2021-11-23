@@ -8,7 +8,7 @@ module.exports = {
         hardhat: {
             forking: {
                 url: "https://api.avax.network/ext/bc/C/rpc",
-                blockNumber: 7231460,
+                blockNumber: 7324600,
             },
         },
         mainnet: {

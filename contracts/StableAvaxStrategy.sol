@@ -4,7 +4,6 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "hardhat/console.sol";
 
 interface IRouter {
     function swapExactTokensForTokens(
@@ -131,9 +130,6 @@ contract StableAvaxStrategy is Initializable {
             address(USDT), address(WAVAX), halfUSDT, WAVAXAmt, 0, 0, address(this), block.timestamp
         );
 
-        // console.log(USDTAVAXAmt);
-        // console.log(address(USDTAVAXVault));
-        // console.log(USDTAVAX.balanceOf(address(this)));
         USDTAVAXVault.deposit(USDTAVAXAmt);
 
         emit InvestUSDTAVAX(USDTAmt, USDTAVAXAmt);

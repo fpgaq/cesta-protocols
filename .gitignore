@@ -1,7 +1,7 @@
 node_modules
 .env
 scripts/check.js
-scripts/index.js
+middleware/index.js
 out
 .vscode
 
