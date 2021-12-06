@@ -50,8 +50,8 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     address public admin;
     address public strategist;
 
-    event Deposit(address caller, uint amtDeposit, address tokenDeposit);
-    event Withdraw(address caller, uint amtWithdraw, address tokenWithdraw, uint shareBurned, uint fees);
+    event Deposit(address caller, uint amtDeposit, address tokenDeposit, uint fees);
+    event Withdraw(address caller, uint amtWithdraw, address tokenWithdraw, uint shareBurned);
     event Invest(uint amount);
     event SetAddresses(
         address oldTreasuryWallet, address newTreasuryWallet,
@@ -92,6 +92,10 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
         uint pool = getAllPoolInUSD();
         token.safeTransferFrom(msg.sender, address(this), amount);
+
+        uint fees = amount * 1 / 100; // 1%
+        token.safeTransfer(address(treasuryWallet), fees);
+        amount -= fees;
         
         uint WAVAXAmt = swap(address(token), address(WAVAX), amount, amountsOutMin[0]);
         strategy.invest(WAVAXAmt, amountsOutMin);
@@ -101,7 +105,7 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         uint share = _totalSupply == 0 ? depositAmtAfterSlippage : depositAmtAfterSlippage * _totalSupply / pool;
         _mint(msg.sender, share);
 
-        emit Deposit(msg.sender, amount, address(token));
+        emit Deposit(msg.sender, amount, address(token), fees);
     }
 
     function withdraw(uint share, IERC20Upgradeable token, uint[] calldata amountsOutMin) external nonReentrant {
@@ -110,24 +114,21 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         require(token == USDT || token == USDC || token == DAI, "Invalid token withdraw");
 
         uint _totalSupply = totalSupply();
-        uint withdrawAmt = (getAllPoolInUSD()) * share / _totalSupply;
         _burn(msg.sender, share);
 
+        uint withdrawAmt;
         if (paused()) {
             uint amtWithdrawInWAVAX = WAVAX.balanceOf(address(this)) * share / _totalSupply;
             withdrawAmt = swap(address(WAVAX), address(token), amtWithdrawInWAVAX, amountsOutMin[0]);
         } else {
+            withdrawAmt = (getAllPoolInUSD()) * share / _totalSupply;
             strategy.withdraw(withdrawAmt, amountsOutMin);
             withdrawAmt = swap(address(WAVAX), address(token), WAVAX.balanceOf(address(this)), amountsOutMin[0]);
         }
 
-        uint fees = withdrawAmt * 1 / 100; // 1%
-        token.safeTransfer(address(treasuryWallet), fees);
-        withdrawAmt -= fees;
-
         token.safeTransfer(msg.sender, withdrawAmt);
 
-        emit Withdraw(msg.sender, withdrawAmt, address(token), share, fees);
+        emit Withdraw(msg.sender, withdrawAmt, address(token), share);
     }
 
     function emergencyWithdraw() external onlyOwnerOrAdmin whenNotPaused {

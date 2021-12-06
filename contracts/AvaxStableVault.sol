@@ -51,8 +51,8 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     address public admin;
     address public strategist;
 
-    event Deposit(address caller, uint amtDeposit, address tokenDeposit);
-    event Withdraw(address caller, uint amtWithdraw, address tokenWithdraw, uint shareBurned, uint fees);
+    event Deposit(address caller, uint amtDeposit, address tokenDeposit, uint fees);
+    event Withdraw(address caller, uint amtWithdraw, address tokenWithdraw, uint shareBurned);
     event Invest(uint amount);
     event SetAddresses(
         address oldTreasuryWallet, address newTreasuryWallet,
@@ -95,6 +95,10 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
         uint pool = getAllPoolInUSD();
         token.safeTransferFrom(msg.sender, address(this), amount);
+
+        uint fees = amount * 1 / 100; // 1%
+        token.safeTransfer(address(treasuryWallet), fees);
+        amount -= fees;
         
         uint USDTAmt;
         if (token != USDT) {
@@ -112,7 +116,7 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         uint share = _totalSupply == 0 ? depositAmtAfterSlippage : depositAmtAfterSlippage * _totalSupply / pool;
         _mint(msg.sender, share);
 
-        emit Deposit(msg.sender, amount, address(token));
+        emit Deposit(msg.sender, amount, address(token), fees);
     }
 
     function withdraw(uint share, IERC20Upgradeable token, uint[] calldata amountsOutMin) external nonReentrant {
@@ -134,12 +138,9 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
             );
         }
 
-        uint fees = withdrawAmt * 1 / 100; // 1%
-        token.safeTransfer(address(treasuryWallet), fees);
-        withdrawAmt -= fees;
         token.safeTransfer(msg.sender, withdrawAmt);
 
-        emit Withdraw(msg.sender, withdrawAmt, address(token), share, fees);
+        emit Withdraw(msg.sender, withdrawAmt, address(token), share);
     }
 
     function emergencyWithdraw() external onlyOwnerOrAdmin whenNotPaused {
