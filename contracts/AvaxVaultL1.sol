@@ -47,13 +47,23 @@ interface IMasterChef {
     function pendingLyd(uint pid, address account) external view returns (uint);
 }
 
-interface IStakingReward {
+interface IStakingReward { // Depreciated
     function stake(uint amount) external;
     function withdraw(uint amount) external;
     function getReward() external;
     function balanceOf(address account) external view returns (uint);
     function earned(address account) external view returns (uint);
     function stakingToken() external view returns (address);
+    function exit() external;
+}
+
+interface IMiniChef { // Replace IStakingReward
+    function deposit(uint256 pid, uint256 amount, address to) external;
+    function withdraw(uint256 pid, uint256 amount, address to) external;
+    function withdrawAndHarvest(uint256 pid, uint256 amount, address to) external;
+    function harvest(uint256 pid, address to) external;
+    function pendingReward(uint256 _pid, address _user) external view returns (uint256 pending);
+    function userInfo(uint pid, address account) external view returns (uint amount, uint rewardDebt);
 }
 
 interface IChainlink {
@@ -71,7 +81,7 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
 
     IRouter public router;
     IMasterChef public masterChef;
-    IStakingReward public stakingReward;
+    IStakingReward public stakingReward; // Depreciated
     uint public poolId;
     bool public isPng;
 
@@ -92,6 +102,9 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
 
     mapping(address => bool) public isWhitelisted;
 
+    // Newly added variable after upgrade
+    IMiniChef public miniChef; // Replace stakingReward
+
     event Deposit(address caller, uint amtDeposited, uint sharesMinted);
     event Withdraw(address caller, uint amtWithdrawed, uint sharesBurned);
     event Invest(uint amtInvested);
@@ -110,52 +123,52 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
         _;
     }
 
-    function initialize(
-            string calldata name, string calldata symbol,
-            IRouter _router, address _stakingContract, IERC20Upgradeable _rewardToken, uint _poolId, bool _isPng,
-            address _treasuryWallet, address _communityWallet, address _admin
-        ) external initializer {
-        __ERC20_init(name, symbol);
-        __Ownable_init();
+    // function initialize(
+    //         string calldata name, string calldata symbol,
+    //         IRouter _router, address _stakingContract, IERC20Upgradeable _rewardToken, uint _poolId, bool _isPng,
+    //         address _treasuryWallet, address _communityWallet, address _admin
+    //     ) external initializer {
+    //     __ERC20_init(name, symbol);
+    //     __Ownable_init();
 
-        router = _router;
-        if (_isPng) {
-            stakingReward = IStakingReward(_stakingContract);
-            isPng = true;
-        } else {
-            masterChef = IMasterChef(_stakingContract);
-        }
-        rewardToken = _rewardToken;
+    //     router = _router;
+    //     if (_isPng) {
+    //         stakingReward = IStakingReward(_stakingContract);
+    //         isPng = true;
+    //     } else {
+    //         masterChef = IMasterChef(_stakingContract);
+    //     }
+    //     rewardToken = _rewardToken;
 
-        poolId = _poolId;
-        address _lpToken;
-        if (_isPng) _lpToken = stakingReward.stakingToken();
-        else (_lpToken,,,) = masterChef.poolInfo(_poolId);
-        lpToken = IPair(_lpToken);
-        token0 = IERC20Upgradeable(lpToken.token0());
-        token1 = IERC20Upgradeable(lpToken.token1());
-        token0Decimal = ERC20Upgradeable(address(token0)).decimals();
-        token1Decimal = ERC20Upgradeable(address(token1)).decimals();
+    //     poolId = _poolId;
+    //     address _lpToken;
+    //     if (_isPng) _lpToken = stakingReward.stakingToken();
+    //     else (_lpToken,,,) = masterChef.poolInfo(_poolId);
+    //     lpToken = IPair(_lpToken);
+    //     token0 = IERC20Upgradeable(lpToken.token0());
+    //     token1 = IERC20Upgradeable(lpToken.token1());
+    //     token0Decimal = ERC20Upgradeable(address(token0)).decimals();
+    //     token1Decimal = ERC20Upgradeable(address(token1)).decimals();
 
-        treasuryWallet = _treasuryWallet;
-        communityWallet = _communityWallet;
-        admin = _admin;
+    //     treasuryWallet = _treasuryWallet;
+    //     communityWallet = _communityWallet;
+    //     admin = _admin;
 
-        yieldFeePerc = 2000;
-        depositFeePerc = 1000;
+    //     yieldFeePerc = 2000;
+    //     depositFeePerc = 1000;
 
-        token0.safeApprove(address(_router), type(uint).max);
-        token1.safeApprove(address(_router), type(uint).max);
-        lpToken.safeApprove(address(_router), type(uint).max);
-        if (isPng) lpToken.safeApprove(_stakingContract, type(uint).max);
-        else lpToken.safeApprove(address(masterChef), type(uint).max);
-        if (address(rewardToken) != address(token0) && address(rewardToken) != address(token1)) {
-            rewardToken.safeApprove(address(_router), type(uint).max);
-        }
-        if (address(token0) != address(WAVAX) && address(token1) != address(WAVAX)) {
-            WAVAX.safeApprove(address(_router), type(uint).max);
-        }
-    }
+    //     token0.safeApprove(address(_router), type(uint).max);
+    //     token1.safeApprove(address(_router), type(uint).max);
+    //     lpToken.safeApprove(address(_router), type(uint).max);
+    //     if (isPng) lpToken.safeApprove(_stakingContract, type(uint).max);
+    //     else lpToken.safeApprove(address(masterChef), type(uint).max);
+    //     if (address(rewardToken) != address(token0) && address(rewardToken) != address(token1)) {
+    //         rewardToken.safeApprove(address(_router), type(uint).max);
+    //     }
+    //     if (address(token0) != address(WAVAX) && address(token1) != address(WAVAX)) {
+    //         WAVAX.safeApprove(address(_router), type(uint).max);
+    //     }
+    // }
 
     function deposit(uint amount) external nonReentrant whenNotPaused {
         require(amount > 0, "Amount must > 0");
@@ -182,7 +195,7 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
         uint lpTokenBalInVault = lpToken.balanceOf(address(this));
         uint lpTokenBalInFarm;
         if (isPng) {
-            lpTokenBalInFarm = stakingReward.balanceOf(address(this));
+            (lpTokenBalInFarm,) = miniChef.userInfo(poolId, address(this));
         } else {
             (lpTokenBalInFarm,) = masterChef.userInfo(poolId, address(this));
         }
@@ -192,7 +205,7 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
         if (withdrawAmt > lpTokenBalInVault) {
             uint amtToWithdraw = withdrawAmt - lpTokenBalInVault;
             if (isPng) {
-                stakingReward.withdraw(amtToWithdraw);
+                miniChef.withdraw(poolId, amtToWithdraw, address(this));
             } else {
                 masterChef.withdraw(poolId, amtToWithdraw);
             }
@@ -203,12 +216,12 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
     }
 
     function invest() public whenNotPaused {
-        if (isPng) stakingReward.stake(lpToken.balanceOf(address(this)));
+        if (isPng) miniChef.deposit(poolId, lpToken.balanceOf(address(this)), address(this));
         else masterChef.deposit(poolId, lpToken.balanceOf(address(this)));
     }
 
     function yield() external onlyOwnerOrAdmin whenNotPaused {
-        if (isPng) stakingReward.getReward();
+        if (isPng) miniChef.harvest(poolId, address(this));
         else masterChef.withdraw(poolId, 0);
 
         uint WAVAXAmt = WAVAX.balanceOf(address(this));
@@ -253,9 +266,9 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
 
         uint lpTokenAmtInFarm;
         if (isPng) {
-            lpTokenAmtInFarm = stakingReward.earned(address(this));
+            (lpTokenAmtInFarm,) = miniChef.userInfo(poolId, address(this));
             if (lpTokenAmtInFarm > 0) {
-                stakingReward.getReward();
+                miniChef.withdrawAndHarvest(poolId, lpTokenAmtInFarm, address(this));
             }
         } else {
             (lpTokenAmtInFarm,) = masterChef.userInfo(poolId, address(this));
@@ -300,6 +313,19 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
     function setAdmin(address _admin) external onlyOwner {
         admin = _admin;
         emit SetAdmin(_admin);
+    }
+
+    function migratePangolinFarm(uint _poolId) external onlyOwner {
+        // Remove all LP tokens from existing farm
+        if (stakingReward.balanceOf(address(this)) > 0) stakingReward.exit();
+        // Update new farm
+        miniChef = IMiniChef(0x1f806f7C8dED893fd3caE279191ad7Aa3798E928);
+        // Update new poolId
+        poolId = _poolId;
+        // Approve LP token to new farm
+        lpToken.safeApprove(address(miniChef), type(uint).max);
+        // Deposit into new farm
+        miniChef.deposit(_poolId, lpToken.balanceOf(address(this)), address(this));
     }
 
     function getPath(address tokenA, address tokenB) private pure returns (address[] memory path) {
@@ -354,8 +380,8 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
         uint pendingRewards;
         uint pendingBonus;
         if (isPng) {
-            // Pangolin stakingReward contract
-            pendingRewards = stakingReward.earned(address(this));
+            // Pangolin miniChef contract
+            pendingRewards = miniChef.pendingReward(poolId, address(this));
         } else if (address(rewardToken) == 0x4C9B4E1AC6F24CdE3660D5E4Ef1eBF77C710C084) {
             // Lydia masterChef use different function for pendingTokens
             pendingRewards = masterChef.pendingLyd(poolId, address(this));
@@ -371,8 +397,8 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
 
     function getAllPool() public view returns (uint) {
         uint lpTokenAmtInFarm;
-        if (isPng) lpTokenAmtInFarm = stakingReward.balanceOf(address(this));
-        else (lpTokenAmtInFarm, ) = masterChef.userInfo(poolId, address(this));
+        if (isPng) (lpTokenAmtInFarm,) = miniChef.userInfo(poolId, address(this));
+        else (lpTokenAmtInFarm,) = masterChef.userInfo(poolId, address(this));
         return lpToken.balanceOf(address(this)) + lpTokenAmtInFarm;
     }
 

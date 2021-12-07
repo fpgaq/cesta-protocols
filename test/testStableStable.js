@@ -47,13 +47,13 @@ describe("Cesta Avalanche", function () {
         const USDCDAIVault = await ethers.getContractAt("AvaxVaultL1", USDCDAIVaultAddr, deployer)
 
         // Upgrade AvaxVaultL1
-        // const avaxStableVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
-        // const avaxStableVaultL1Impl = await avaxStableVaultL1Fac.deploy()
-        // const avaxStableVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
-        // await avaxStableVaultL1Factory.connect(admin).updateLogic(avaxStableVaultL1Impl.address)
+        const avaxStableVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
+        const avaxStableVaultL1Impl = await avaxStableVaultL1Fac.deploy()
+        const avaxStableVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
+        await avaxStableVaultL1Factory.connect(admin).updateLogic(avaxStableVaultL1Impl.address)
 
         // Proxy admin
-        // const proxyAdmin = await ethers.getContractAt("DAOProxyAdmin", "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E", deployer)
+        const proxyAdmin = await ethers.getContractAt("DAOProxyAdmin", "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E", deployer)
 
         // Deploy Stable-AVAX strategy
         // const stableStableStrategyFac = await ethers.getContractFactory("StableStableStrategy", deployer)
@@ -91,6 +91,13 @@ describe("Cesta Avalanche", function () {
         // const avaxStableVault = await ethers.getContractAt("AvaxStableVault", avaxStableVaultProxy.address, deployer)
         const avaxStableVaultProxyAddr = "0xB103F669E87f67376FB9458A67226f2774a0B4FD"
         const avaxStableVault = await ethers.getContractAt("AvaxStableVault", avaxStableVaultProxyAddr, deployer)
+
+        // Upgrade AvaxStableVault
+        const avaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
+        const avaxStableVaultImpl = await avaxStableVaultFac.deploy()
+        await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
+
+        await avaxStableVault.connect(admin).setFees(100)
 
         // await stableStableStrategy.connect(admin).setVault(avaxStableVault.address)
 
@@ -188,11 +195,8 @@ describe("Cesta Avalanche", function () {
         // Withdraw
         console.log("-----withdraw-----")
         amountsOutMin = [0]
-        // amountsOutMin = await middleware.getAmountsOutMinDeXAvax((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, deployer)
         await avaxStableVault.connect(client).withdraw((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, amountsOutMin)
-        // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client2.address), USDTAddr, deployer)
         await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
-        // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client3.address), USDTAddr, deployer)
         await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
         console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9887.700185
         console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9892.783247

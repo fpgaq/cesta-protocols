@@ -50,13 +50,15 @@ describe("Cesta Avalanche", function () {
         const LYDAVAXVault = await ethers.getContractAt("AvaxVaultL1", LYDAVAXVaultAddr, deployer)
 
         // Upgrade AvaxVaultL1
-        // const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
-        // const avaxVaultL1Impl = await avaxVaultL1Fac.deploy()
-        // const avaxVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
-        // await avaxVaultL1Factory.connect(admin).updateLogic(avaxVaultL1Impl.address)
+        const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
+        const avaxVaultL1Impl = await avaxVaultL1Fac.deploy()
+        const avaxVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
+        await avaxVaultL1Factory.connect(admin).updateLogic(avaxVaultL1Impl.address)
+
+        await PNGAVAXVault.connect(admin).migratePangolinFarm(0)
 
         // Proxy admin
-        // const proxyAdmin = await ethers.getContractAt("DAOProxyAdmin", "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E", deployer)
+        const proxyAdmin = await ethers.getContractAt("DAOProxyAdmin", "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E", deployer)
 
         // Deploy DeX-Avax strategy
         // const DeXAvaxStrategyFac = await ethers.getContractFactory("DeXAvaxStrategy", deployer)
@@ -96,9 +98,11 @@ describe("Cesta Avalanche", function () {
         const avaxVault = await ethers.getContractAt("AvaxVault", avaxVaultProxyAddr, deployer)
 
         // Upgrade AvaxVault
-        // const avaxVaultFac = await ethers.getContractFactory("AvaxVault", deployer)
-        // const avaxVaultImpl = await avaxVaultFac.deploy()
-        // await proxyAdmin.connect(admin).upgrade(avaxVaultProxyAddr, avaxVaultImpl.address)
+        const avaxVaultFac = await ethers.getContractFactory("AvaxVault", deployer)
+        const avaxVaultImpl = await avaxVaultFac.deploy()
+        await proxyAdmin.connect(admin).upgrade(avaxVaultProxyAddr, avaxVaultImpl.address)
+
+        await avaxVault.connect(admin).setFees(100)
 
         // Set vault
         // await deXAvaxStrategy.connect(admin).setVault(avaxVault.address)
@@ -131,94 +135,31 @@ describe("Cesta Avalanche", function () {
         await USDCContract.transfer(client3.address, ethers.utils.parseUnits("10000", 6))
         await DAIContract.transfer(client.address, ethers.utils.parseUnits("10000", 18))
 
-        // // Deposit
-        // // Vault
-        // const tokenDeposit = USDTAddr
-        // // const tokenDeposit = USDCAddr
-        // // const tokenDeposit = DAIAddr
-        // const amountDeposit = ethers.utils.parseUnits("10000", 6)
-        // // const joeRouter = new ethers.Contract(joeRouterAddr, router_ABI, deployer)
-        // const pngRouter = new ethers.Contract(pngRouterAddr, router_ABI, deployer)
-        // const lydRouter = new ethers.Contract(lydRouterAddr, router_ABI, deployer)
-        // const WAVAXAmt = (await joeRouter.getAmountsOut(amountDeposit, [tokenDeposit, WAVAXAddr]))[1]
-        // const WAVAXAmtMin = WAVAXAmt.mul(995).div(1000)
-        // // Strategy
-        // const [pool0, pool1, pool2] = await deXAvaxStrategy.getEachPool()
-        // const pool = pool0.add(pool1).add(pool2).add(WAVAXAmt)
-        // const JOEAVAXTargetPool = pool.mul(4500).div(10000)
-        // const PNGAVAXTargetPool = JOEAVAXTargetPool
-        // const LYDAVAXTargetPool = pool.mul(1000).div(10000)
-        // // Rebalancing
-        // let JOEAmtMin, PNGAmtMin, LYDAmtMin
-        // JOEAmtMin = PNGAmtMin = LYDAmtMin = 0
-        // if (JOEAVAXTargetPool.gt(pool0) && PNGAVAXTargetPool.gt(pool1) && LYDAVAXTargetPool.gt(pool2)) {
-        //     const amountInvestJOEAVAX = JOEAVAXTargetPool.sub(pool0)
-        //     const JOEAmt = (await joeRouter.getAmountsOut(amountInvestJOEAVAX.div(2), [WAVAXAddr, JOEAddr]))[1]
-        //     JOEAmtMin = JOEAmt.mul(995).div(1000)
-        //     const amountInvestPNGAVAX = PNGAVAXTargetPool.sub(pool1)
-        //     const PNGAmt = (await pngRouter.getAmountsOut(amountInvestPNGAVAX.div(2), [WAVAXAddr, PNGAddr]))[1]
-        //     PNGAmtMin = PNGAmt.mul(995).div(1000)
-        //     const amountInvestLYDAVAX = LYDAVAXTargetPool.sub(pool2)
-        //     const LYDAmt = (await lydRouter.getAmountsOut(amountInvestLYDAVAX.div(2), [WAVAXAddr, LYDAddr]))[1]
-        //     LYDAmtMin = LYDAmt.mul(995).div(1000)
-        // } else {
-        //     let furthest, farmIndex, diff
-        //     if (JOEAVAXTargetPool.gt(pool0)) {
-        //         diff = JOEAVAXTargetPool.sub(pool0)
-        //         furthest = diff
-        //         farmIndex = 0
-        //     }
-        //     if (PNGAVAXTargetPool.gt(pool1)) {
-        //         diff = PNGAVAXTargetPool.sub(pool1)
-        //         if (diff.gt(furthest)) {
-        //             furthest = diff
-        //             farmIndex = 1
-        //         }
-        //     }
-        //     if (LYDAVAXTargetPool.gt(pool2)) {
-        //         diff = LYDAVAXTargetPool.sub(pool2)
-        //         if (diff.gt(furthest)) {
-        //             furthest = diff
-        //             farmIndex = 2
-        //         }
-        //     }
-        //     if (farmIndex == 0) {
-        //         const JOEAmt = (await joeRouter.getAmountsOut(WAVAXAmt.div(2), [WAVAXAddr, JOEAddr]))[1]
-        //         JOEAmtMin = JOEAmt.mul(995).div(1000)
-        //     } else if (farmIndex == 1) {
-        //         const PNGAmt = (await pngRouter.getAmountsOut(WAVAXAmt.div(2), [WAVAXAddr, PNGAddr]))[1]
-        //         PNGAmtMin = PNGAmt.mul(995).div(1000)
-        //     } else {
-        //         const LYDAmt = (await lydRouter.getAmountsOut(WAVAXAmt.div(2), [WAVAXAddr, LYDAddr]))[1]
-        //         LYDAmtMin = LYDAmt.mul(995).div(1000)
-        //     }
-        // }
-        // amountsOutMin = [WAVAXAmtMin, JOEAmtMin, PNGAmtMin, LYDAmtMin]
-
-        // amountsOutMin = [0, 0, 0, 0]
+        // Deposit
+        amountsOutMin = [0, 0, 0, 0]
         await USDTContract.connect(client).approve(avaxVault.address, ethers.constants.MaxUint256)
         await USDCContract.connect(client).approve(avaxVault.address, ethers.constants.MaxUint256)
         await DAIContract.connect(client).approve(avaxVault.address, ethers.constants.MaxUint256)
-        amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 6), USDTAddr, provider)
+        // amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 6), USDTAddr, provider)
         tx = await avaxVault.connect(client).deposit(ethers.utils.parseUnits("10000", 6), USDTAddr, amountsOutMin)
-        // // receipt = await tx.wait()
-        // // console.log(receipt.gasUsed.toString()) // 1654441
-        amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 6), USDCAddr, provider)
+        // receipt = await tx.wait()
+        // console.log(receipt.gasUsed.toString()) // 1654441
+        // amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 6), USDCAddr, provider)
         tx = await avaxVault.connect(client).deposit(ethers.utils.parseUnits("10000", 6), USDCAddr, amountsOutMin)
-        // // receipt = await tx.wait()
-        // // console.log(receipt.gasUsed.toString()) // 1493978
-        amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 18), DAIAddr, provider)
+        // receipt = await tx.wait()
+        // console.log(receipt.gasUsed.toString()) // 1493978
+        // amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 18), DAIAddr, provider)
         tx = await avaxVault.connect(client).deposit(ethers.utils.parseUnits("10000", 18), DAIAddr, amountsOutMin)
-        // // receipt = await tx.wait()
-        // // console.log(receipt.gasUsed.toString()) // 1442825
-        // // console.log(ethers.utils.formatEther(await avaxVault.balanceOf(client.address))) // 29826.6144742985537149
+        // receipt = await tx.wait()
+        // console.log(receipt.gasUsed.toString()) // 1442825
+        // console.log(ethers.utils.formatEther(await avaxVault.balanceOf(client.address))) // 29826.6144742985537149
 
         // Second Deposit
         await USDTContract.connect(client2).approve(avaxVault.address, ethers.constants.MaxUint256)
         await USDCContract.connect(client3).approve(avaxVault.address, ethers.constants.MaxUint256)
-        amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 6), USDTAddr, provider)
+        // amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 6), USDTAddr, provider)
         await avaxVault.connect(client2).deposit(ethers.utils.parseUnits("10000", 6), USDTAddr, amountsOutMin)
-        amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 6), USDCAddr, provider)
+        // amountsOutMin = await midDeposit.getAmountsOutMinDeXAvax(ethers.utils.parseUnits("10000", 6), USDCAddr, provider)
         await avaxVault.connect(client3).deposit(ethers.utils.parseUnits("10000", 6), USDCAddr, amountsOutMin)
         // console.log(ethers.utils.formatEther(await avaxVault.balanceOf(client2.address))) // 9942.978162144970684726
         // console.log(ethers.utils.formatEther(await avaxVault.balanceOf(client3.address))) // 9936.633979589888458834
@@ -265,57 +206,6 @@ describe("Cesta Avalanche", function () {
 
         // Withdraw
         console.log("-----withdraw-----")
-
-        // // Vault
-        // const shareWithdraw = (await avaxVault.balanceOf(client.address)).div(3)
-        // // const shareWithdraw = await avaxVault.balanceOf(client2.address)
-        // // const shareWithdraw = await avaxVault.balanceOf(client3.address)
-        // const tokenWithdraw = USDTAddr
-        // const allPoolInUSD = await avaxVault.getAllPoolInUSD()
-        // let withdrawAmt = (allPoolInUSD).mul(shareWithdraw).div(await avaxVault.totalSupply())
-        // // Strategy
-        // // const joeRouter = new ethers.Contract(joeRouterAddr, router_ABI, deployer)
-        // const pngRouter = new ethers.Contract(pngRouterAddr, router_ABI, deployer)
-        // const lydRouter = new ethers.Contract(lydRouterAddr, router_ABI, deployer)
-        // const oneEther = ethers.utils.parseEther("1")
-        // const sharePerc = withdrawAmt.mul(oneEther).div(allPoolInUSD)
-
-        // let totalWAVAXAmt = ethers.constants.Zero
-
-        // const JOEAVAXAmt = (await JOEAVAXVault.balanceOf(deXAvaxStrategy.address)).mul(sharePerc).div(oneEther)
-        // const JOEAVAXContract = new ethers.Contract(JOEAVAXAddr, pair_ABI, deployer)
-        // const [JOEReserve, WAVAXReserveJOE] = await JOEAVAXContract.getReserves()
-        // const totalSupplyJOEAVAX = await JOEAVAXContract.totalSupply()
-        // const JOEAmt = JOEReserve.mul(JOEAVAXAmt).div(totalSupplyJOEAVAX)
-        // const WAVAXAmtJOE = WAVAXReserveJOE.mul(JOEAVAXAmt).div(totalSupplyJOEAVAX)
-        // const _WAVAXAmtJOE = (await joeRouter.getAmountsOut(JOEAmt, [JOEAddr, WAVAXAddr]))[1]
-        // const WAVAXAmtMinJOE = _WAVAXAmtJOE.mul(995).div(1000)
-        // totalWAVAXAmt = totalWAVAXAmt.add(WAVAXAmtJOE.add(_WAVAXAmtJOE))
-
-        // const PNGAVAXAmt = (await PNGAVAXVault.balanceOf(deXAvaxStrategy.address)).mul(sharePerc).div(oneEther)
-        // const PNGAVAXContract = new ethers.Contract(PNGAVAXAddr, pair_ABI, deployer)
-        // const [PNGReserve, WAVAXReservePNG] = await PNGAVAXContract.getReserves()
-        // const totalSupplyPNGAVAX = await PNGAVAXContract.totalSupply()
-        // const PNGAmt = PNGReserve.mul(PNGAVAXAmt).div(totalSupplyPNGAVAX)
-        // const WAVAXAmtPNG = WAVAXReservePNG.mul(PNGAVAXAmt).div(totalSupplyPNGAVAX)
-        // const _WAVAXAmtPNG = (await pngRouter.getAmountsOut(PNGAmt, [PNGAddr, WAVAXAddr]))[1]
-        // const WAVAXAmtMinPNG = _WAVAXAmtPNG.mul(995).div(1000)
-        // totalWAVAXAmt = totalWAVAXAmt.add(WAVAXAmtPNG.add(_WAVAXAmtPNG))
-
-        // const LYDAVAXAmt = (await LYDAVAXVault.balanceOf(deXAvaxStrategy.address)).mul(sharePerc).div(oneEther)
-        // const LYDAVAXContract = new ethers.Contract(LYDAVAXAddr, pair_ABI, deployer)
-        // const [LYDReserve, WAVAXReserveLYD] = await LYDAVAXContract.getReserves()
-        // const totalSupplyLYDAVAX = await LYDAVAXContract.totalSupply()
-        // const LYDAmt = LYDReserve.mul(LYDAVAXAmt).div(totalSupplyLYDAVAX)
-        // const WAVAXAmtLYD = WAVAXReserveLYD.mul(LYDAVAXAmt).div(totalSupplyLYDAVAX)
-        // const _WAVAXAmtLYD = (await lydRouter.getAmountsOut(LYDAmt, [LYDAddr, WAVAXAddr]))[1]
-        // const WAVAXAmtMinLYD = _WAVAXAmtLYD.mul(995).div(1000)
-        // totalWAVAXAmt = totalWAVAXAmt.add(WAVAXAmtLYD.add(_WAVAXAmtLYD))
-
-        // // Vault
-        // withdrawAmt = (await joeRouter.getAmountsOut(totalWAVAXAmt, [WAVAXAddr, tokenWithdraw]))[1]
-        // const withdrawAmtMin = withdrawAmt.mul(995).div(1000)
-        // amountsOutMin = [withdrawAmtMin, WAVAXAmtMinJOE, WAVAXAmtMinPNG, WAVAXAmtMinLYD]
 
         amountsOutMin = [0, 0, 0, 0]
         // amountsOutMin = await midWithdraw.getAmountsOutMinDeXAvax((await avaxVault.balanceOf(client.address)).div(3), USDTAddr, provider)
