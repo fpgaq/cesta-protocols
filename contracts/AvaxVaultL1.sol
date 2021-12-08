@@ -64,6 +64,7 @@ interface IMiniChef { // Replace IStakingReward
     function harvest(uint256 pid, address to) external;
     function pendingReward(uint256 _pid, address _user) external view returns (uint256 pending);
     function userInfo(uint pid, address account) external view returns (uint amount, uint rewardDebt);
+    function lpToken(uint pid) external view returns (address lpTokenAddr);
 }
 
 interface IChainlink {
@@ -98,7 +99,7 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
     address public admin; 
 
     uint public yieldFeePerc;
-    uint public depositFeePerc;
+    uint public depositFeePerc; // Not used for now
 
     mapping(address => bool) public isWhitelisted;
 
@@ -123,52 +124,51 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
         _;
     }
 
-    // function initialize(
-    //         string calldata name, string calldata symbol,
-    //         IRouter _router, address _stakingContract, IERC20Upgradeable _rewardToken, uint _poolId, bool _isPng,
-    //         address _treasuryWallet, address _communityWallet, address _admin
-    //     ) external initializer {
-    //     __ERC20_init(name, symbol);
-    //     __Ownable_init();
+    function initialize(
+            string calldata name, string calldata symbol,
+            IRouter _router, address _stakingContract, IERC20Upgradeable _rewardToken, uint _poolId, bool _isPng,
+            address _treasuryWallet, address _communityWallet, address _admin
+        ) external initializer {
+        __ERC20_init(name, symbol);
+        __Ownable_init();
 
-    //     router = _router;
-    //     if (_isPng) {
-    //         stakingReward = IStakingReward(_stakingContract);
-    //         isPng = true;
-    //     } else {
-    //         masterChef = IMasterChef(_stakingContract);
-    //     }
-    //     rewardToken = _rewardToken;
+        router = _router;
+        if (_isPng) {
+            miniChef = IMiniChef(_stakingContract);
+            isPng = true;
+        } else {
+            masterChef = IMasterChef(_stakingContract);
+        }
+        rewardToken = _rewardToken;
 
-    //     poolId = _poolId;
-    //     address _lpToken;
-    //     if (_isPng) _lpToken = stakingReward.stakingToken();
-    //     else (_lpToken,,,) = masterChef.poolInfo(_poolId);
-    //     lpToken = IPair(_lpToken);
-    //     token0 = IERC20Upgradeable(lpToken.token0());
-    //     token1 = IERC20Upgradeable(lpToken.token1());
-    //     token0Decimal = ERC20Upgradeable(address(token0)).decimals();
-    //     token1Decimal = ERC20Upgradeable(address(token1)).decimals();
+        poolId = _poolId;
+        address _lpToken;
+        if (_isPng) _lpToken = miniChef.lpToken(_poolId);
+        else (_lpToken,,,) = masterChef.poolInfo(_poolId);
+        lpToken = IPair(_lpToken);
+        token0 = IERC20Upgradeable(lpToken.token0());
+        token1 = IERC20Upgradeable(lpToken.token1());
+        token0Decimal = ERC20Upgradeable(address(token0)).decimals();
+        token1Decimal = ERC20Upgradeable(address(token1)).decimals();
 
-    //     treasuryWallet = _treasuryWallet;
-    //     communityWallet = _communityWallet;
-    //     admin = _admin;
+        treasuryWallet = _treasuryWallet;
+        communityWallet = _communityWallet;
+        admin = _admin;
 
-    //     yieldFeePerc = 2000;
-    //     depositFeePerc = 1000;
+        yieldFeePerc = 1000;
+        depositFeePerc = 1000;
 
-    //     token0.safeApprove(address(_router), type(uint).max);
-    //     token1.safeApprove(address(_router), type(uint).max);
-    //     lpToken.safeApprove(address(_router), type(uint).max);
-    //     if (isPng) lpToken.safeApprove(_stakingContract, type(uint).max);
-    //     else lpToken.safeApprove(address(masterChef), type(uint).max);
-    //     if (address(rewardToken) != address(token0) && address(rewardToken) != address(token1)) {
-    //         rewardToken.safeApprove(address(_router), type(uint).max);
-    //     }
-    //     if (address(token0) != address(WAVAX) && address(token1) != address(WAVAX)) {
-    //         WAVAX.safeApprove(address(_router), type(uint).max);
-    //     }
-    // }
+        token0.safeApprove(address(_router), type(uint).max);
+        token1.safeApprove(address(_router), type(uint).max);
+        lpToken.safeApprove(address(_router), type(uint).max);
+        lpToken.safeApprove(_stakingContract, type(uint).max);
+        if (address(rewardToken) != address(token0) && address(rewardToken) != address(token1)) {
+            rewardToken.safeApprove(address(_router), type(uint).max);
+        }
+        if (address(token0) != address(WAVAX) && address(token1) != address(WAVAX)) {
+            WAVAX.safeApprove(address(_router), type(uint).max);
+        }
+    }
 
     function deposit(uint amount) external nonReentrant whenNotPaused {
         require(amount > 0, "Amount must > 0");
@@ -289,6 +289,19 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
         return router.swapExactTokensForTokens(amount, 0, getPath(from, to), address(this), block.timestamp)[1];
     }
 
+    function migratePangolinFarm(uint _poolId) external onlyOwner {
+        // Remove all LP tokens from existing farm
+        if (stakingReward.balanceOf(address(this)) > 0) stakingReward.exit();
+        // Update new farm
+        miniChef = IMiniChef(0x1f806f7C8dED893fd3caE279191ad7Aa3798E928);
+        // Update new poolId
+        poolId = _poolId;
+        // Approve LP token to new farm
+        lpToken.safeApprove(address(miniChef), type(uint).max);
+        // Deposit into new farm
+        miniChef.deposit(_poolId, lpToken.balanceOf(address(this)), address(this));
+    }
+
     function setWhitelistAddress(address _addr, bool _status) external onlyOwnerOrAdmin {
         isWhitelisted[_addr] = _status;
         emit SetWhitelistAddress(_addr, _status);
@@ -313,19 +326,6 @@ contract AvaxVaultL1 is Initializable, ERC20Upgradeable, ReentrancyGuardUpgradea
     function setAdmin(address _admin) external onlyOwner {
         admin = _admin;
         emit SetAdmin(_admin);
-    }
-
-    function migratePangolinFarm(uint _poolId) external onlyOwner {
-        // Remove all LP tokens from existing farm
-        if (stakingReward.balanceOf(address(this)) > 0) stakingReward.exit();
-        // Update new farm
-        miniChef = IMiniChef(0x1f806f7C8dED893fd3caE279191ad7Aa3798E928);
-        // Update new poolId
-        poolId = _poolId;
-        // Approve LP token to new farm
-        lpToken.safeApprove(address(miniChef), type(uint).max);
-        // Deposit into new farm
-        miniChef.deposit(_poolId, lpToken.balanceOf(address(this)), address(this));
     }
 
     function getPath(address tokenA, address tokenB) private pure returns (address[] memory path) {
