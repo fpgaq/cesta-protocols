@@ -23,6 +23,7 @@ const deXStableStrategyAddr = ""
 const stableAvaxStrategyAddr = ""
 
 const amountOutMinPerc = 995
+const networkFeePerc = 0
 
 const getAmountsOutMinDeXAvax = async (amountDeposit, stablecoinAddr, _provider) => {
     const provider = new ethers.providers.Web3Provider(_provider) // Change Web3 provider to Ethers provider
@@ -44,6 +45,7 @@ const getAmountsOutMinDeXAvax = async (amountDeposit, stablecoinAddr, _provider)
     const LYDPriceInUSD = res.data[LYDAddr].usd
 
     // Inside vault
+    amountDeposit = amountDeposit.sub(amountDeposit.mul(networkFeePerc).div(10000))
     const decimals = stablecoinAddr == DAIAddr ? 18 : 6
     const amountDepositInNum = parseFloat(ethers.utils.formatUnits(amountDeposit, decimals))
     const amountDepositInWAVAX = amountDepositInNum / WAVAXPriceInUSD
@@ -156,8 +158,8 @@ const getAmountsOutMinDeXStable = async (amountDeposit, stablecoinAddr, _provide
     const PNGPriceInUSD = res.data[PNGAddr].usd
     const LYDPriceInUSD = res.data[LYDAddr].usd
 
-    // Vault
-    // Assume all Stablecoins have same value
+    // Vault (Assume all Stablecoins have same value)
+    amountDeposit = amountDeposit.sub(amountDeposit.mul(networkFeePerc).div(10000))
     // Strategy
     if (stablecoinAddr == DAIAddr) amountDeposit = amountDeposit.div(ethers.utils.parseUnits("1", 12))
     const [pool0, pool1, pool2] = await deXStableStrategy.getEachPool()
@@ -210,8 +212,8 @@ const getAmountsOutMinStableAvax = async (amountDeposit, stablecoinAddr, _provid
     const res = await axios.get(`https://api.coingecko.com/api/v3/simple/token_price/avalanche?contract_addresses=${WAVAXAddr}&vs_currencies=usd`)
     const WAVAXPriceInUSD = res.data[WAVAXAddr].usd
 
-    // Vault
-    // Assume all Stablecoins have same value
+    // Vault (Assume all Stablecoins have same value)
+    amountDeposit = amountDeposit.sub(amountDeposit.mul(networkFeePerc).div(10000))
     // Strategy
     if (stablecoinAddr == DAIAddr) amountDeposit = amountDeposit.div(ethers.utils.parseUnits("1", 12))
     const [pool0, pool1, pool2] = await stableAvaxStrategy.getEachPool()
