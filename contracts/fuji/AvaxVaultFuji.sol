@@ -50,6 +50,9 @@ contract AvaxVaultFuji is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     address public admin;
     address public strategist;
 
+    // Newly added variable after upgrade
+    uint public networkFeePerc;
+
     event Deposit(address caller, uint amtDeposit, address tokenDeposit);
     event Withdraw(address caller, uint amtWithdraw, address tokenWithdraw, uint shareBurned);
     event Invest(uint amount);
@@ -92,6 +95,10 @@ contract AvaxVaultFuji is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
         uint pool = getAllPoolInUSD();
         token.safeTransferFrom(msg.sender, address(this), amount);
+
+        uint fees = amount * networkFeePerc / 10000;
+        token.safeTransfer(address(treasuryWallet), fees);
+        amount -= fees;
         
         // uint WAVAXAmt = swap(address(token), address(WAVAX), amount, amountsOutMin[0]);
         // strategy.invest(WAVAXAmt, amountsOutMin);
@@ -160,6 +167,10 @@ contract AvaxVaultFuji is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         admin = _admin;
 
         emit SetAddresses(oldTreasuryWallet, _treasuryWallet, oldCommunityWallet, _communityWallet, oldAdmin, _admin);
+    }
+
+    function setFees(uint _feePerc) external onlyOwner {
+        networkFeePerc = _feePerc;
     }
 
     function setProxy(address _proxy) external onlyOwner {
