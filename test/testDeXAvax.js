@@ -50,12 +50,12 @@ describe("Cesta Avalanche", function () {
         const LYDAVAXVault = await ethers.getContractAt("AvaxVaultL1", LYDAVAXVaultAddr, deployer)
 
         // Upgrade AvaxVaultL1
-        const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
-        const avaxVaultL1Impl = await avaxVaultL1Fac.deploy()
-        const avaxVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
-        await avaxVaultL1Factory.connect(admin).updateLogic(avaxVaultL1Impl.address)
+        // const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
+        // const avaxVaultL1Impl = await avaxVaultL1Fac.deploy()
+        // const avaxVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
+        // await avaxVaultL1Factory.connect(admin).updateLogic(avaxVaultL1Impl.address)
 
-        await PNGAVAXVault.connect(admin).migratePangolinFarm(0)
+        // await PNGAVAXVault.connect(admin).migratePangolinFarm(0)
 
         // Proxy admin
         const proxyAdmin = await ethers.getContractAt("DAOProxyAdmin", "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E", deployer)
@@ -98,11 +98,11 @@ describe("Cesta Avalanche", function () {
         const avaxVault = await ethers.getContractAt("AvaxVault", avaxVaultProxyAddr, deployer)
 
         // Upgrade AvaxVault
-        const avaxVaultFac = await ethers.getContractFactory("AvaxVault", deployer)
-        const avaxVaultImpl = await avaxVaultFac.deploy()
-        await proxyAdmin.connect(admin).upgrade(avaxVaultProxyAddr, avaxVaultImpl.address)
+        // const avaxVaultFac = await ethers.getContractFactory("AvaxVault", deployer)
+        // const avaxVaultImpl = await avaxVaultFac.deploy()
+        // await proxyAdmin.connect(admin).upgrade(avaxVaultProxyAddr, avaxVaultImpl.address)
 
-        await avaxVault.connect(admin).setFees(100)
+        // await avaxVault.connect(admin).setFees(100)
 
         // Set vault
         // await deXAvaxStrategy.connect(admin).setVault(avaxVault.address)

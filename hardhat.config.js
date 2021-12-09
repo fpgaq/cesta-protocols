@@ -8,7 +8,7 @@ module.exports = {
         hardhat: {
             forking: {
                 url: "https://api.avax.network/ext/bc/C/rpc",
-                blockNumber: 7929600,
+                blockNumber: 8005445,
 
                 // url: "https://api.avax-test.network/ext/bc/C/rpc", // testnet
                 // blockNumber: 3221391,
@@ -16,6 +16,7 @@ module.exports = {
         },
         mainnet: {
             url: "https://api.avax.network/ext/bc/C/rpc",
+            gasPrice: 25000000000, // 25 nAVAX
             accounts: [`0x${process.env.PRIVATE_KEY}`],
         },
         fuji: {

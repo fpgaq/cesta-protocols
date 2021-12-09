@@ -1,10 +1,10 @@
 const { ethers } = require("hardhat")
 
-const proxyAdminAddr = "0x29fBe3298569722Cfe26a122223Da1C0EC92829f"
-const contractProxyAddr = "0xe1964BDd447ee6f0Ee2bC734f1043ebA35444CFC"
-const contractName = "AvaxVaultFuji"
+const proxyAdminAddr = "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E"
+const contractProxyAddr = "0xB103F669E87f67376FB9458A67226f2774a0B4FD"
+const contractName = "AvaxStableVault"
 
-// const avaxVaultL1FactoryAddr = "0x849DBe4417E03534cB15F48c996219FC07B69008"
+// const avaxVaultL1FactoryAddr = "0x04DDc3281f71DC70879E312BbF759d54f514f07f"
 
 async function main() {
     const [deployer] = await ethers.getSigners()
@@ -20,7 +20,7 @@ async function main() {
     // const contractImpl = await contractFac.deploy()
     // await contractImpl.deployTransaction.wait()
     // console.log("New implementation contract:", contractImpl.address)
-    const contractImplAddr = "0x9C92FB7fF819F83B1ec349267f005749a725f853"
+    const contractImplAddr = "0x16a6AfEdFb08689Af316a747B6d0ac1cB37142eF"
 
     const proxyAdmin = new ethers.Contract(proxyAdminAddr, ["function upgrade(address, address) external"], deployer)
     // tx = await proxyAdmin.upgrade(contractProxyAddr, contractImpl.address)
@@ -28,38 +28,29 @@ async function main() {
     await tx.wait()
     console.log("Contract upgraded successfully")
 
-    // Upgrade AvaxVaultL1
+    const contract = await ethers.getContractAt(contractName, contractProxyAddr, deployer)
+    tx = await contract.setFees(100)
+    await tx.wait()
+    console.log("Set fees successfully")
+
+    // // Upgrade AvaxVaultL1
     // const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
     // const avaxVaultL1Impl = await avaxVaultL1Fac.deploy()
     // await avaxVaultL1Impl.deployTransaction.wait()
     // console.log(avaxVaultL1Impl.address)
-    // const avaxVaultL1ImplAddr = "0x084F149E5B293eB0244fBEc1B4Ed76a56a498134"
+    // // const avaxVaultL1ImplAddr = "0x084F149E5B293eB0244fBEc1B4Ed76a56a498134"
     // const avaxVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", avaxVaultL1FactoryAddr, deployer)
     // tx = await avaxVaultL1Factory.updateLogic(avaxVaultL1Impl.address)
-    // tx = await avaxVaultL1Factory.updateLogic(avaxVaultL1ImplAddr)
+    // // tx = await avaxVaultL1Factory.updateLogic(avaxVaultL1ImplAddr)
     // await tx.wait()
     // console.log("Contract upgraded successfully")
 
-    // Set lower yield fee
-    // const JOEAVAXVaultAddr = "0xFe67a4BAe72963BE1181B211180d8e617B5a8dee"
-    // const JOEAVAXVault = await ethers.getContractAt("AvaxVaultL1", JOEAVAXVaultAddr, deployer)
-    // tx = await JOEAVAXVault.setFee(1000, 1000)
+    // const PNGAVAXVault = await ethers.getContractAt("AvaxVaultL1", "0x7eEcFB07b7677aa0e1798a4426b338dA23f9De34", deployer)
+    // tx = await PNGAVAXVault.migratePangolinFarm(0)
     // await tx.wait()
-    // const PNGAVAXVaultAddr = "0x7eEcFB07b7677aa0e1798a4426b338dA23f9De34"
-    // const PNGAVAXVault = await ethers.getContractAt("AvaxVaultL1", PNGAVAXVaultAddr, deployer)
-    // tx = await PNGAVAXVault.setFee(1000, 1000)
+    // const USDCAVAXVault = await ethers.getContractAt("AvaxVaultL1", "0x5378B730711D1f57F888e4828b130E591c4Ea97b", deployer)
+    // tx = await USDCAVAXVault.migratePangolinFarm(9)
     // await tx.wait()
-    // const LYDAVAXVaultAddr = "0xffEaB42879038920A31911f3E93295bF703082ed"
-    // const LYDAVAXVault = await ethers.getContractAt("AvaxVaultL1", LYDAVAXVaultAddr, deployer)
-    // tx = await LYDAVAXVault.setFee(1000, 1000)
-    // await tx.wait()
-
-    // console.log((await JOEAVAXVault.yieldFeePerc()).toString())
-    // console.log((await JOEAVAXVault.depositFeePerc()).toString())
-    // console.log((await PNGAVAXVault.yieldFeePerc()).toString())
-    // console.log((await PNGAVAXVault.depositFeePerc()).toString())
-    // console.log((await LYDAVAXVault.yieldFeePerc()).toString())
-    // console.log((await LYDAVAXVault.depositFeePerc()).toString())
 }
 
 main()

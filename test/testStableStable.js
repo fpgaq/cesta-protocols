@@ -47,10 +47,10 @@ describe("Cesta Avalanche", function () {
         const USDCDAIVault = await ethers.getContractAt("AvaxVaultL1", USDCDAIVaultAddr, deployer)
 
         // Upgrade AvaxVaultL1
-        const avaxStableVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
-        const avaxStableVaultL1Impl = await avaxStableVaultL1Fac.deploy()
-        const avaxStableVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
-        await avaxStableVaultL1Factory.connect(admin).updateLogic(avaxStableVaultL1Impl.address)
+        // const avaxStableVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
+        // const avaxStableVaultL1Impl = await avaxStableVaultL1Fac.deploy()
+        // const avaxStableVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
+        // await avaxStableVaultL1Factory.connect(admin).updateLogic(avaxStableVaultL1Impl.address)
 
         // Proxy admin
         const proxyAdmin = await ethers.getContractAt("DAOProxyAdmin", "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E", deployer)
@@ -93,11 +93,11 @@ describe("Cesta Avalanche", function () {
         const avaxStableVault = await ethers.getContractAt("AvaxStableVault", avaxStableVaultProxyAddr, deployer)
 
         // Upgrade AvaxStableVault
-        const avaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
-        const avaxStableVaultImpl = await avaxStableVaultFac.deploy()
-        await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
+        // const avaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
+        // const avaxStableVaultImpl = await avaxStableVaultFac.deploy()
+        // await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
 
-        await avaxStableVault.connect(admin).setFees(100)
+        // await avaxStableVault.connect(admin).setFees(100)
 
         // await stableStableStrategy.connect(admin).setVault(avaxStableVault.address)
 
@@ -174,7 +174,7 @@ describe("Cesta Avalanche", function () {
         // console.log(ethers.utils.formatEther((await USDTDAIVault.getPendingRewards())[0])) // 2.719544083533077744
         // console.log(ethers.utils.formatEther((await USDCDAIVault.getPendingRewards())[0])) // 2.383853873375385494
         await USDTUSDCVault.connect(admin).yield()
-        await USDTDAIVault.connect(admin).yield()
+        // await USDTDAIVault.connect(admin).yield() // No reward from Trader Joe at the moment
         await USDCDAIVault.connect(admin).yield()
         // console.log(ethers.utils.formatEther(await USDTUSDCVault.getPricePerFullShare(false))) // 1.000374999517005749
         // console.log(ethers.utils.formatEther(await USDTDAIVault.getPricePerFullShare(false))) // 1.000474838584791507

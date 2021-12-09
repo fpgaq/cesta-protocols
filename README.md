@@ -6,7 +6,7 @@
 
 #### L1
 
-Cesta L1 Avalanche vault (implementation) contract address: 0x084F149E5B293eB0244fBEc1B4Ed76a56a498134
+Cesta L1 Avalanche vault (implementation) contract address: 0xB5106A17739883d057eCe5102bE33C5DB95B66e1
 
 Cesta L1 Avalanche factory contract address: 0x04DDc3281f71DC70879E312BbF759d54f514f07f
 
@@ -16,9 +16,13 @@ Cesta L1 PNG-AVAX vault (proxy) contract address: 0x7eEcFB07b7677aa0e1798a4426b3
 
 Cesta L1 LYD-AVAX vault (proxy) contract address: 0xffEaB42879038920A31911f3E93295bF703082ed
 
-Cesta L1 JOE-USDC vault (proxy) contract address: 0xC4029ad66AAe4DCF3F8A8C67F4000EAFE49E6d10
+Cesta L1 JOE-USDC vault (proxy) contract address: 0xC4029ad66AAe4DCF3F8A8C67F4000EAFE49E6d10 // Depreciated
 
-Cesta L1 PNG-USDT vault (proxy) contract address: 0x12bD78eF81bd767B9014aD4Ec61a6F209DDB659F
+Cesta L1 JOE-USDT vault (proxy) contract address: 0x95921D21029751bF8F65Bb53442b69412C71FFE0 // Replace JOE-USDC
+
+Cesta L1 PNG-USDT vault (proxy) contract address: 0x12bD78eF81bd767B9014aD4Ec61a6F209DDB659F // Depreciated
+
+Cesta L1 PNG-USDC vault (proxy) contract address: 0xcd799015fbe5AF106E4D4aDe29D5AF9918bfd318 // Replace PNG-USDT
 
 Cesta L1 LYD-DAI vault (proxy) contract address: 0x469b5620675a9988c24cDd57B1E7136E162D6a53
 
@@ -68,13 +72,14 @@ Cesta Avalanche Stablecoin-Stablecoin vault (proxy) contract address: 0xB103F669
 
 #### Vault implementation
 
-Cesta Avalanche vault (implementation) contract address: 0x20B07973085c4fB12b5B17A6E30193847f498BA4
+Cesta Avalanche vault (implementation) contract address: 0x089b2FAf85409B0dfa1E1e1F3CFB4B92E53087A0
 
-Cesta Avalanche stable vault (implementation) contract address: 0x2DE3d757C16e3C0170f352D2BFB88b4278712870
+Cesta Avalanche stable vault (implementation) contract address: 0x16a6AfEdFb08689Af316a747B6d0ac1cB37142eF
 
 #### Proxy admin
 
 Cesta proxy admin contract address: 0xd02C2Ff6ef80f1d096Bc060454054B607d26763E
+
 
 
 ### Fuji
