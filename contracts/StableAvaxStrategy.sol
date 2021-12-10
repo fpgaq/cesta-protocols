@@ -69,6 +69,8 @@ contract StableAvaxStrategy is Initializable {
     IDaoL1Vault public DAIAVAXVault;
 
     address public vault;
+    uint public watermark; // In USD (18 decimals)
+    uint public profitFeePerc;
 
     event InvestUSDTAVAX(uint USDAmt, uint USDTAVAXAmt);
     event InvestUSDCAVAX(uint USDAmt, uint USDCAVAXAmt);
@@ -77,6 +79,8 @@ contract StableAvaxStrategy is Initializable {
     event WithdrawUSDTAVAX(uint lpTokenAmt, uint USDAmt);
     event WithdrawUSDCAVAX(uint lpTokenAmt, uint USDAmt);
     event WithdrawDAIAVAX(uint lpTokenAmt, uint USDAmt);
+    event CollectProfitAndUpdateWatermark(uint currentWatermark, uint lastWatermark, uint fee);
+    event AdjustWatermark(uint currentWatermark, uint lastWatermark);
     event EmergencyWithdraw(uint USDAmt);
 
     modifier onlyVault {
@@ -246,13 +250,39 @@ contract StableAvaxStrategy is Initializable {
 
         uint USDTAmt = USDT.balanceOf(address(this));
         USDT.safeTransfer(vault, USDTAmt);
+        watermark = 0;
 
         emit EmergencyWithdraw(USDTAmt);
+    }
+
+    function collectProfitAndUpdateWatermark() external onlyVault returns (uint fee, uint allPoolInUSDAfterFee) {
+        uint currentWatermark = getAllPoolInUSD();
+        uint lastWatermark = watermark;
+        if (currentWatermark > lastWatermark) {
+            uint profit = currentWatermark - lastWatermark;
+            fee = profit * profitFeePerc / 10000;
+            watermark = currentWatermark;
+        }
+        allPoolInUSDAfterFee = currentWatermark - fee;
+
+        emit CollectProfitAndUpdateWatermark(currentWatermark, lastWatermark, fee);
+    }
+
+    /// @param signs True for positive, false for negative
+    function adjustWatermark(uint amount, bool signs) external onlyVault {
+        uint lastWatermark = watermark;
+        watermark = signs == true ? watermark + amount : watermark - amount;
+
+        emit AdjustWatermark(watermark, lastWatermark);
     }
 
     function setVault(address _vault) external {
         require(vault == address(0), "Vault set");
         vault = _vault;
+    }
+
+    function setProfitFeePerc(uint _profitFeePerc) external onlyVault {
+        profitFeePerc = _profitFeePerc;
     }
 
     function getPath(address tokenA, address tokenB) private pure returns (address[] memory path) {

@@ -28,7 +28,10 @@ interface ICurve {
 interface IStrategy {
     function invest(uint amount, uint[] calldata amountsOutMin) external;
     function withdraw(uint sharePerc, uint[] calldata amountsOutMin) external;
+    function collectProfitAndUpdateWatermark() external returns (uint, uint);
+    function adjustWatermark(uint amount, bool signs) external;
     function emergencyWithdraw() external;
+    function setProfitFeePerc(uint _profitFeePerc) external;
     function getAllPoolInUSD() external view returns (uint);
 }
 
@@ -51,8 +54,8 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     address public admin;
     address public strategist;
 
-    // Newly added variable after upgrade
     uint public networkFeePerc;
+    uint public fees; // In USD, 18 decimals
 
     event Deposit(address caller, uint amtDeposit, address tokenDeposit, uint fees);
     event Withdraw(address caller, uint amtWithdraw, address tokenWithdraw, uint shareBurned);
@@ -96,12 +99,16 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         require(amount > 0, "Amount must > 0");
         require(token == USDT || token == USDC || token == DAI, "Invalid token deposit");
 
-        uint pool = getAllPoolInUSD();
         token.safeTransferFrom(msg.sender, address(this), amount);
 
-        uint fees = amount * networkFeePerc / 10000;
-        token.safeTransfer(address(treasuryWallet), fees);
-        amount -= fees;
+        uint pool = collectProfitAndUpdateWatermark();
+
+        uint fee = amount * networkFeePerc / 10000;
+        fees += token != DAI ? fee * 1e12 : fee; // Change to 18 decimals
+        amount -= fee;
+
+        uint amountToAdjust = token != DAI ? amount * 1e12 : amount; // Change to 18 decimals
+        strategy.adjustWatermark(amountToAdjust, true);
         
         uint USDTAmt;
         if (token != USDT) {
@@ -132,6 +139,7 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
         if (!paused()) {
             strategy.withdraw(withdrawAmt, amountsOutMin);
+            strategy.adjustWatermark(withdrawAmt, false);
             withdrawAmt = USDT.balanceOf(address(this));
         }
         
@@ -141,9 +149,23 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
             );
         }
 
+        
         token.safeTransfer(msg.sender, withdrawAmt);
 
         emit Withdraw(msg.sender, withdrawAmt, address(token), share);
+    }
+
+    function collectProfitAndUpdateWatermark() public whenNotPaused returns (uint) {
+        (uint previousProfitFee, uint allPoolInUSDAfterFee) = strategy.collectProfitAndUpdateWatermark();
+        if (previousProfitFee > 0) fees += previousProfitFee;
+
+        return allPoolInUSDAfterFee;
+    }
+
+    function releaseFees() external onlyOwnerOrAdmin {
+        uint feeInLPToken = fees * 1e18 / getPricePerFullShare();
+        _mint(address(treasuryWallet), feeInLPToken);
+        fees = 0;
     }
 
     function emergencyWithdraw() external onlyOwnerOrAdmin whenNotPaused {
@@ -164,8 +186,9 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         emit SetAddresses(oldTreasuryWallet, _treasuryWallet, oldCommunityWallet, _communityWallet, oldAdmin, _admin);
     }
 
-    function setFees(uint _feePerc) external onlyOwner {
-        networkFeePerc = _feePerc;
+    function setFees(uint _networkFeePerc, uint _profitFeePerc) external onlyOwner {
+        networkFeePerc = _networkFeePerc;
+        strategy.setProfitFeePerc(_profitFeePerc);
     }
 
     function setProxy(address _proxy) external onlyOwner {
@@ -184,7 +207,7 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     }
 
     /// @notice Can be use for calculate both user shares & APR    
-    function getPricePerFullShare() external view returns (uint) {
-        return (getAllPoolInUSD()) * 1e18 / totalSupply();
+    function getPricePerFullShare() public view returns (uint) {
+        return (getAllPoolInUSD() - fees) * 1e18 / totalSupply();
     }
 }

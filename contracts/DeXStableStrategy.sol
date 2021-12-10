@@ -76,6 +76,8 @@ contract DeXStableStrategy is Initializable {
     // Newly variable added after upgrade
     IDaoL1Vault public JOEUSDTVault; // Replace JOEUSDC
     IDaoL1Vault public PNGUSDCVault; // Replace PNGUSDT
+    uint public watermark; // In USD (18 decimals)
+    uint public profitFeePerc;
 
     event TargetComposition (uint JOEUSDTTargetPool, uint PNGUSDCTargetPool, uint LYDDAITargetPool);
     event CurrentComposition (uint JOEUSDTCCurrentPool, uint PNGUSDCCurrentPool, uint LYDDAICurrentPool);
@@ -86,6 +88,8 @@ contract DeXStableStrategy is Initializable {
     event WithdrawJOEUSDT(uint lpTokenAmt, uint USDAmt);
     event WithdrawPNGUSDC(uint lpTokenAmt, uint USDAmt);
     event WithdrawLYDDAI(uint lpTokenAmt, uint USDAmt);
+    event CollectProfitAndUpdateWatermark(uint currentWatermark, uint lastWatermark, uint fee);
+    event AdjustWatermark(uint currentWatermark, uint lastWatermark);
     event EmergencyWithdraw(uint USDAmt);
 
     modifier onlyVault {
@@ -303,6 +307,7 @@ contract DeXStableStrategy is Initializable {
 
         uint USDTAmt = USDT.balanceOf(address(this));
         USDT.safeTransfer(vault, USDTAmt);
+        watermark = 0;
 
         emit EmergencyWithdraw(USDTAmt);
     }
@@ -348,9 +353,34 @@ contract DeXStableStrategy is Initializable {
         // PNGUSDCVault.deposit(PNGUSDCAmt);
     }
 
+    function collectProfitAndUpdateWatermark() external onlyVault returns (uint fee, uint allPoolInUSDAfterFee) {
+        uint currentWatermark = getAllPoolInUSD();
+        uint lastWatermark = watermark;
+        if (currentWatermark > lastWatermark) {
+            uint profit = currentWatermark - lastWatermark;
+            fee = profit * profitFeePerc / 10000;
+            watermark = currentWatermark;
+        }
+        allPoolInUSDAfterFee = currentWatermark - fee;
+
+        emit CollectProfitAndUpdateWatermark(currentWatermark, lastWatermark, fee);
+    }
+
+    /// @param signs True for positive, false for negative
+    function adjustWatermark(uint amount, bool signs) external onlyVault {
+        uint lastWatermark = watermark;
+        watermark = signs == true ? watermark + amount : watermark - amount;
+
+        emit AdjustWatermark(watermark, lastWatermark);
+    }
+
     function setVault(address _vault) external {
         require(vault == address(0), "Vault set");
         vault = _vault;
+    }
+
+    function setProfitFeePerc(uint _profitFeePerc) external onlyVault {
+        profitFeePerc = _profitFeePerc;
     }
 
     function getPath(address tokenA, address tokenB) private pure returns (address[] memory path) {

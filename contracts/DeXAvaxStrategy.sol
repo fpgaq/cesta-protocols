@@ -68,6 +68,8 @@ contract DeXAvaxStrategy is Initializable {
     IDaoL1Vault public LYDAVAXVault;
 
     address public vault;
+    uint public watermark; // In USD (18 decimals)
+    uint public profitFeePerc;
 
     event TargetComposition (uint JOEAVAXTargetPool, uint PNGAVAXTargetPool, uint LYDAVAXTargetPool);
     event CurrentComposition (uint JOEAVAXCCurrentPool, uint PNGAVAXCurrentPool, uint LYDAVAXCurrentPool);
@@ -78,6 +80,8 @@ contract DeXAvaxStrategy is Initializable {
     event WithdrawJOEAVAX(uint lpTokenAmt, uint WAVAXAmt);
     event WithdrawPNGAVAX(uint lpTokenAmt, uint WAVAXAmt);
     event WithdrawLYDAVAX(uint lpTokenAmt, uint WAVAXAmt);
+    event CollectProfitAndUpdateWatermark(uint currentWatermark, uint lastWatermark, uint fee);
+    event AdjustWatermark(uint currentWatermark, uint lastWatermark);
     event EmergencyWithdraw(uint WAVAXAmt);
 
     modifier onlyVault {
@@ -273,13 +277,39 @@ contract DeXAvaxStrategy is Initializable {
 
         uint WAVAXAmt = WAVAX.balanceOf(address(this));
         WAVAX.safeTransfer(vault, WAVAXAmt);
+        watermark = 0;
         
         emit EmergencyWithdraw(WAVAXAmt);
+    }
+
+    function collectProfitAndUpdateWatermark() external onlyVault returns (uint fee, uint allPoolInUSDAfterFee) {
+        uint currentWatermark = getAllPoolInUSD();
+        uint lastWatermark = watermark;
+        if (currentWatermark > lastWatermark) {
+            uint profit = currentWatermark - lastWatermark;
+            fee = profit * profitFeePerc / 10000;
+            watermark = currentWatermark;
+        }
+        allPoolInUSDAfterFee = currentWatermark - fee;
+
+        emit CollectProfitAndUpdateWatermark(currentWatermark, lastWatermark, fee);
+    }
+
+    /// @param signs True for positive, false for negative
+    function adjustWatermark(uint amount, bool signs) external onlyVault {
+        uint lastWatermark = watermark;
+        watermark = signs == true ? watermark + amount : watermark - amount;
+
+        emit AdjustWatermark(watermark, lastWatermark);
     }
 
     function setVault(address _vault) external {
         require(vault == address(0), "Vault set");
         vault = _vault;
+    }
+
+    function setProfitFeePerc(uint _profitFeePerc) external onlyVault {
+        profitFeePerc = _profitFeePerc;
     }
 
     function getPath(address tokenA, address tokenB) private pure returns (address[] memory path) {

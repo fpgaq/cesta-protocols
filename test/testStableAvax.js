@@ -74,6 +74,11 @@ describe("Cesta Avalanche", function () {
         const stableAvaxStrategyProxyAddr = "0x3845d7c09374Df1ae6Ce4728c99DD20D3d75F414"
         const stableAvaxStrategy = await ethers.getContractAt("DeXStableStrategy", stableAvaxStrategyProxyAddr, deployer)
 
+        // Upgrade stableAvaxStrategy
+        const stableAvaxStrategyFac = await ethers.getContractFactory("stableAvaxStrategy", deployer)
+        const stableAvaxStrategyImpl = await stableAvaxStrategyFac.deploy()
+        await proxyAdmin.connect(admin).upgrade(stableAvaxStrategyProxyAddr, stableAvaxStrategyImpl.address)
+
         // Deploy AvaxStableVault
         // const AvaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
         // const avaxStableVaultImpl = await AvaxStableVaultFac.deploy()
@@ -95,9 +100,11 @@ describe("Cesta Avalanche", function () {
         const avaxStableVault = await ethers.getContractAt("AvaxStableVault", avaxStableVaultProxyAddr, deployer)
 
         // Upgrade AvaxStableVault
-        // const avaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
-        // const avaxStableVaultImpl = await avaxStableVaultFac.deploy()
-        // await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
+        const avaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
+        const avaxStableVaultImpl = await avaxStableVaultFac.deploy()
+        await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
+
+        await avaxStableVault.connect(admin).setFees(100, 2000)
 
         // await avaxStableVault.connect(admin).setFees(100)
 
@@ -182,6 +189,12 @@ describe("Cesta Avalanche", function () {
         // console.log(ethers.utils.formatEther(await USDCAVAXVault.getPricePerFullShare(false))) // 1.000971702287307833
         // console.log(ethers.utils.formatEther(await DAIAVAXVault.getPricePerFullShare(false))) // 1.000673006458581316
         // console.log(ethers.utils.formatEther(await avaxStableVault.getPricePerFullShare())) // 1.000849017348870382
+
+        // Release fees
+        await avaxVault.connect(admin).releaseFees()
+        const lpTokenAmt = await avaxVault.balanceOf(adminAddr)
+        const ppfs = await avaxVault.getPricePerFullShare()
+        // console.log(ethers.utils.formatEther(lpTokenAmt.mul(ppfs).div(ethers.utils.parseEther("1"))))
 
         // Check farm vault pool
         // console.log(ethers.utils.formatEther(await USDTAVAXVault.getAllPoolInUSD())) // 500 2462.588188769446473244
