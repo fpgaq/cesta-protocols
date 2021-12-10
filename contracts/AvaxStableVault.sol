@@ -101,10 +101,10 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
         token.safeTransferFrom(msg.sender, address(this), amount);
 
-        uint pool = collectProfitAndUpdateWatermark();
+        uint poolBeforeInvest = collectProfitAndUpdateWatermark();
 
         uint fee = amount * networkFeePerc / 10000;
-        fees += token != DAI ? fee * 1e12 : fee; // Change to 18 decimals
+        token.safeTransfer(treasuryWallet, fee);
         amount -= fee;
 
         uint amountToAdjust = token != DAI ? amount * 1e12 : amount; // Change to 18 decimals
@@ -122,8 +122,8 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         strategy.invest(USDTAmt, amountsOutMin);
         
         uint _totalSupply = totalSupply();
-        uint depositAmtAfterSlippage = _totalSupply == 0 ? getAllPoolInUSD() : getAllPoolInUSD() - pool;
-        uint share = _totalSupply == 0 ? depositAmtAfterSlippage : depositAmtAfterSlippage * _totalSupply / pool;
+        uint depositAmtAfterSlippage = _totalSupply == 0 ? getAllPoolInUSD() : getAllPoolInUSD() - poolBeforeInvest;
+        uint share = _totalSupply == 0 ? depositAmtAfterSlippage : depositAmtAfterSlippage * _totalSupply / poolBeforeInvest;
         _mint(msg.sender, share);
 
         emit Deposit(msg.sender, amount, address(token), fees);
@@ -156,10 +156,10 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     }
 
     function collectProfitAndUpdateWatermark() public whenNotPaused returns (uint) {
-        (uint previousProfitFee, uint allPoolInUSDAfterFee) = strategy.collectProfitAndUpdateWatermark();
+        (uint previousProfitFee, uint allPoolInUSD) = strategy.collectProfitAndUpdateWatermark();
         if (previousProfitFee > 0) fees += previousProfitFee;
 
-        return allPoolInUSDAfterFee;
+        return allPoolInUSD;
     }
 
     function releaseFees() external onlyOwnerOrAdmin {
@@ -208,6 +208,6 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
     /// @notice Can be use for calculate both user shares & APR    
     function getPricePerFullShare() public view returns (uint) {
-        return (getAllPoolInUSD() - fees) * 1e18 / totalSupply();
+        return getAllPoolInUSD() * 1e18 / totalSupply();
     }
 }

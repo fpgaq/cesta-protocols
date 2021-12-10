@@ -30,7 +30,7 @@ const lydRouterAddr = "0xA52aBE4676dbfd04Df42eF7755F01A3c41f28D27"
 const lydStakingContractAddr = "0xFb26525B14048B7BB1F3794F6129176195Db7766"
 
 describe("Cesta Avalanche", function () {
-    it("Should work on DeXToken-AVAX strategy", async function () {
+    it("Should work on Stablecoin-AVAX strategy", async function () {
         let tx, receipt, amountsOutMin
         // const [deployer, client, client2, client3, treasury, community, admin, multisig] = await ethers.getSigners()
         const [deployer, client, client2, client3, treasury, community] = await ethers.getSigners()
@@ -75,7 +75,7 @@ describe("Cesta Avalanche", function () {
         const stableAvaxStrategy = await ethers.getContractAt("DeXStableStrategy", stableAvaxStrategyProxyAddr, deployer)
 
         // Upgrade stableAvaxStrategy
-        const stableAvaxStrategyFac = await ethers.getContractFactory("stableAvaxStrategy", deployer)
+        const stableAvaxStrategyFac = await ethers.getContractFactory("StableAvaxStrategy", deployer)
         const stableAvaxStrategyImpl = await stableAvaxStrategyFac.deploy()
         await proxyAdmin.connect(admin).upgrade(stableAvaxStrategyProxyAddr, stableAvaxStrategyImpl.address)
 
@@ -105,8 +105,6 @@ describe("Cesta Avalanche", function () {
         await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
 
         await avaxStableVault.connect(admin).setFees(100, 2000)
-
-        // await avaxStableVault.connect(admin).setFees(100)
 
         // await stableAvaxStrategy.connect(admin).setVault(avaxStableVault.address)
 
@@ -191,9 +189,9 @@ describe("Cesta Avalanche", function () {
         // console.log(ethers.utils.formatEther(await avaxStableVault.getPricePerFullShare())) // 1.000849017348870382
 
         // Release fees
-        await avaxVault.connect(admin).releaseFees()
-        const lpTokenAmt = await avaxVault.balanceOf(adminAddr)
-        const ppfs = await avaxVault.getPricePerFullShare()
+        await avaxStableVault.connect(admin).releaseFees()
+        const lpTokenAmt = await avaxStableVault.balanceOf(adminAddr)
+        const ppfs = await avaxStableVault.getPricePerFullShare()
         // console.log(ethers.utils.formatEther(lpTokenAmt.mul(ppfs).div(ethers.utils.parseEther("1"))))
 
         // Check farm vault pool
@@ -216,9 +214,9 @@ describe("Cesta Avalanche", function () {
         await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
         // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client3.address), USDTAddr, deployer)
         await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9864.694456
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9853.208453
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9836.092514
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9860.585624
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9850.388515
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9829.912636
 
         // amountsOutMin = await getAmountsOutMinDeXAvax(
         //     avaxStableVault.address, stableAvaxStrategy.address, (await avaxStableVault.balanceOf(client.address)).div(3), USDCAddr, deployer

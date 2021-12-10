@@ -282,7 +282,7 @@ contract DeXAvaxStrategy is Initializable {
         emit EmergencyWithdraw(WAVAXAmt);
     }
 
-    function collectProfitAndUpdateWatermark() external onlyVault returns (uint fee, uint allPoolInUSDAfterFee) {
+    function collectProfitAndUpdateWatermark() external onlyVault returns (uint fee, uint allPoolInUSD) {
         uint currentWatermark = getAllPoolInUSD();
         uint lastWatermark = watermark;
         if (currentWatermark > lastWatermark) {
@@ -290,7 +290,7 @@ contract DeXAvaxStrategy is Initializable {
             fee = profit * profitFeePerc / 10000;
             watermark = currentWatermark;
         }
-        allPoolInUSDAfterFee = currentWatermark - fee;
+        allPoolInUSD = currentWatermark;
 
         emit CollectProfitAndUpdateWatermark(currentWatermark, lastWatermark, fee);
     }

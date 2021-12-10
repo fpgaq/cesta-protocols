@@ -225,9 +225,9 @@ describe("Cesta Avalanche", function () {
         await avaxVault.connect(client2).withdraw(avaxVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
         // amountsOutMin = await midWithdraw.getAmountsOutMinDeXAvax(await avaxVault.balanceOf(client3.address), USDTAddr, provider)
         await avaxVault.connect(client3).withdraw(avaxVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9800.31519
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9811.112628
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9772.533221
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9814.095735
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9810.192136
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9803.59313
 
         // amountsOutMin = await getAmountsOutMinDeXAvax(
         //     avaxVault.address, deXAvaxStrategy.address, (await avaxVault.balanceOf(client.address)).div(3), USDCAddr, deployer

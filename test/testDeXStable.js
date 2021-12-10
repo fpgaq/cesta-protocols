@@ -106,7 +106,7 @@ describe("Cesta Avalanche", function () {
         const deXStableStrategyImpl = await deXStableStrategyFac.deploy()
         await proxyAdmin.connect(admin).upgrade(deXStableStrategyProxyAddr, deXStableStrategyImpl.address)
 
-        // await deXStableStrategy.connect(admin).migrateFunds(JOEUSDTVaultAddr, PNGUSDCVaultAddr)
+        await deXStableStrategy.connect(admin).migrateFunds(JOEUSDTVaultAddr, PNGUSDCVaultAddr)
 
         // Deploy AvaxStableVault
         const AvaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
@@ -222,9 +222,9 @@ describe("Cesta Avalanche", function () {
         // console.log(ethers.utils.formatEther(await avaxStableVault.getPricePerFullShare())) // 1.002533579239154478
 
         // Release fees
-        await avaxVault.connect(admin).releaseFees()
-        const lpTokenAmt = await avaxVault.balanceOf(adminAddr)
-        const ppfs = await avaxVault.getPricePerFullShare()
+        // await avaxStableVault.connect(admin).releaseFees()
+        // const lpTokenAmt = await avaxStableVault.balanceOf(adminAddr)
+        // const ppfs = await avaxStableVault.getPricePerFullShare()
         // console.log(ethers.utils.formatEther(lpTokenAmt.mul(ppfs).div(ethers.utils.parseEther("1"))))
 
         // Check farm vault pool
@@ -247,9 +247,9 @@ describe("Cesta Avalanche", function () {
         await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
         // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client3.address), USDTAddr, deployer)
         await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9904.774893
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9878.201368
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9849.56857
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9906.10492
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9879.980509
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9847.348286
 
         // amountsOutMin = await getAmountsOutMinDeXAvax(
         //     avaxStableVault.address, deXStableStrategy.address, (await avaxStableVault.balanceOf(client.address)).div(3), USDCAddr, deployer
