@@ -52,7 +52,7 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     address public treasuryWallet;
     address public communityWallet;
     address public admin;
-    address public strategist;
+    address public community;
 
     uint public networkFeePerc;
     uint public fees; // In USD, 18 decimals
@@ -62,7 +62,7 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     event Invest(uint amount);
     event SetAddresses(
         address oldTreasuryWallet, address newTreasuryWallet,
-        address oldCommunityWallet, address newCommunityWallet,
+        address oldcommunityWallet, address newcommunityWallet,
         address oldAdmin, address newAdmin
     );
     
@@ -104,7 +104,8 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         uint poolBeforeInvest = collectProfitAndUpdateWatermark();
 
         uint fee = amount * networkFeePerc / 10000;
-        token.safeTransfer(treasuryWallet, fee);
+        token.safeTransfer(treasuryWallet, fee * 4 / 5);
+        token.safeTransfer(communityWallet, fee * 1 / 5);
         amount -= fee;
 
         uint amountToAdjust = token != DAI ? amount * 1e12 : amount; // Change to 18 decimals
@@ -164,7 +165,8 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
     function releaseFees() external onlyOwnerOrAdmin {
         uint feeInLPToken = fees * 1e18 / getPricePerFullShare();
-        _mint(address(treasuryWallet), feeInLPToken);
+        _mint(address(treasuryWallet), feeInLPToken * 4 / 5);
+        _mint(address(treasuryWallet), feeInLPToken * 1 / 5);
         fees = 0;
     }
 
@@ -176,14 +178,14 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
 
     function setAddresses(address _treasuryWallet, address _communityWallet, address _admin) external onlyOwner {
         address oldTreasuryWallet = treasuryWallet;
-        address oldCommunityWallet = communityWallet;
+        address oldcommunityWallet = communityWallet;
         address oldAdmin = admin;
 
         treasuryWallet = _treasuryWallet;
         communityWallet = _communityWallet;
         admin = _admin;
 
-        emit SetAddresses(oldTreasuryWallet, _treasuryWallet, oldCommunityWallet, _communityWallet, oldAdmin, _admin);
+        emit SetAddresses(oldTreasuryWallet, _treasuryWallet, oldcommunityWallet, _communityWallet, oldAdmin, _admin);
     }
 
     function setFees(uint _networkFeePerc, uint _profitFeePerc) external onlyOwner {
