@@ -1,8 +1,8 @@
 const { ethers } = require("hardhat")
 
 const proxyAdminAddr = "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E"
-const contractProxyAddr = "0xB103F669E87f67376FB9458A67226f2774a0B4FD"
-const contractName = "AvaxStableVault"
+const contractProxyAddr = "0x07b4d7f3b5599E9c345d13813e0C8bad1010D30b"
+const contractName = "StableStableStrategy"
 
 // const avaxVaultL1FactoryAddr = "0x04DDc3281f71DC70879E312BbF759d54f514f07f"
 
@@ -20,18 +20,13 @@ async function main() {
     // const contractImpl = await contractFac.deploy()
     // await contractImpl.deployTransaction.wait()
     // console.log("New implementation contract:", contractImpl.address)
-    const contractImplAddr = "0x16a6AfEdFb08689Af316a747B6d0ac1cB37142eF"
+    // // const contractImplAddr = "0x254Ba654D6aEBC334693D5e72776c6cCd548FcB1"
 
-    const proxyAdmin = new ethers.Contract(proxyAdminAddr, ["function upgrade(address, address) external"], deployer)
+    // const proxyAdmin = new ethers.Contract(proxyAdminAddr, ["function upgrade(address, address) external"], deployer)
     // tx = await proxyAdmin.upgrade(contractProxyAddr, contractImpl.address)
-    tx = await proxyAdmin.upgrade(contractProxyAddr, contractImplAddr)
-    await tx.wait()
-    console.log("Contract upgraded successfully")
-
-    const contract = await ethers.getContractAt(contractName, contractProxyAddr, deployer)
-    tx = await contract.setFees(100)
-    await tx.wait()
-    console.log("Set fees successfully")
+    // // tx = await proxyAdmin.upgrade(contractProxyAddr, contractImplAddr)
+    // await tx.wait()
+    // console.log("Contract upgraded successfully")
 
     // // Upgrade AvaxVaultL1
     // const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
@@ -45,12 +40,12 @@ async function main() {
     // await tx.wait()
     // console.log("Contract upgraded successfully")
 
-    // const PNGAVAXVault = await ethers.getContractAt("AvaxVaultL1", "0x7eEcFB07b7677aa0e1798a4426b338dA23f9De34", deployer)
-    // tx = await PNGAVAXVault.migratePangolinFarm(0)
-    // await tx.wait()
-    // const USDCAVAXVault = await ethers.getContractAt("AvaxVaultL1", "0x5378B730711D1f57F888e4828b130E591c4Ea97b", deployer)
-    // tx = await USDCAVAXVault.migratePangolinFarm(9)
-    // await tx.wait()
+    const JOEUSDTVault = await ethers.getContractAt("AvaxVaultL1", "0x95921D21029751bF8F65Bb53442b69412C71FFE0", deployer)
+    tx = await JOEUSDTVault.setWhitelistAddress("0x63243f079C2054D6c011d4b5D11F3955D9d5F3F4", true)
+    await tx.wait()
+    const PNGUSDCVault = await ethers.getContractAt("AvaxVaultL1", "0xcd799015fbe5AF106E4D4aDe29D5AF9918bfd318", deployer)
+    tx = await PNGUSDCVault.setWhitelistAddress("0x63243f079C2054D6c011d4b5D11F3955D9d5F3F4", true)
+    await tx.wait()
 }
 
 main()

@@ -73,9 +73,9 @@ describe("Cesta Avalanche", function () {
         const stableStableStrategy = await ethers.getContractAt("StableStableStrategy", stableStableStrategyProxyAddr, deployer)
 
         // Upgrade stableStableStrategy
-        const stableStableStrategyFac = await ethers.getContractFactory("StableStableStrategy", deployer)
-        const stableStableStrategyImpl = await stableStableStrategyFac.deploy()
-        await proxyAdmin.connect(admin).upgrade(stableStableStrategyProxyAddr, stableStableStrategyImpl.address)
+        // const stableStableStrategyFac = await ethers.getContractFactory("StableStableStrategy", deployer)
+        // const stableStableStrategyImpl = await stableStableStrategyFac.deploy()
+        // await proxyAdmin.connect(admin).upgrade(stableStableStrategyProxyAddr, stableStableStrategyImpl.address)
 
         // Deploy AvaxStableVault
         // const AvaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
@@ -98,11 +98,11 @@ describe("Cesta Avalanche", function () {
         const avaxStableVault = await ethers.getContractAt("AvaxStableVault", avaxStableVaultProxyAddr, deployer)
 
         // Upgrade AvaxStableVault
-        const avaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
-        const avaxStableVaultImpl = await avaxStableVaultFac.deploy()
-        await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
+        // const avaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
+        // const avaxStableVaultImpl = await avaxStableVaultFac.deploy()
+        // await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
 
-        await avaxStableVault.connect(admin).setFees(100, 2000)
+        // await avaxStableVault.connect(admin).setFees(100, 2000)
 
         // await stableStableStrategy.connect(admin).setVault(avaxStableVault.address)
 
@@ -209,9 +209,9 @@ describe("Cesta Avalanche", function () {
         await avaxStableVault.connect(client).withdraw((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, amountsOutMin)
         await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
         await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9874.110258
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9881.354854
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9870.743956
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9979.85764
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9985.353307
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9978.012196
 
         // amountsOutMin = await getAmountsOutMinDeXAvax(
         //     avaxStableVault.address, stableStableStrategy.address, (await avaxStableVault.balanceOf(client.address)).div(3), USDCAddr, deployer
