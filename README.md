@@ -32,11 +32,17 @@ Cesta L1 USDC-AVAX vault (proxy) contract address: 0x5378B730711D1f57F888e4828b1
 
 Cesta L1 DAI-AVAX vault (proxy) contract address: 0x308555fb3083A300A03dEfFfa311D2eAF2CD56C8
 
-Cesta L1 USDT-USDC vault (proxy) contract address: 0x6fa8512d7950cAF167a534E45E39A12DA67F150C
+Cesta L1 USDT-USDC vault (proxy, JOE) contract address: 0x6fa8512d7950cAF167a534E45E39A12DA67F150C // Depreciated
 
-Cesta L1 USDT-DAI vault (proxy) contract address: 0xA2ca6C09e9269fD88FCB19a2841c5F7F73a71916
+Cesta L1 USDT-DAI vault (proxy, JOE) contract address: 0xA2ca6C09e9269fD88FCB19a2841c5F7F73a71916 // Depreciated
 
-Cesta L1 USDC-DAI vault (proxy) contract address: 0xcc71BE249986072AE6EbA7A67ed89FE7091d130B
+Cesta L1 USDC-DAI vault (proxy, JOE) contract address: 0xcc71BE249986072AE6EbA7A67ed89FE7091d130B // Depreciated
+
+Cesta L1 USDT-USDC vault (proxy, PNG) contract address: 0x4d9A85E9C329Be41c6eAb320a8A029EEAe483C62 // Replace Trader Joe USDT-USDC
+
+Cesta L1 USDT-DAI vault (proxy, LYD) contract address: 0x51791752Aa31d66c17AB525bf79e06c41929BbBc // Replace Trader Joe USDT-DAI
+
+Cesta L1 USDC-DAI vault (proxy, PNG) contract address: 0x4ABD68371e0cf565596744Fc80a97dE41253deBd // Replace Trader Joe USDC-DAI
 
 #### DeXToken-AVAX
 
@@ -64,7 +70,7 @@ Cesta Avalanche Stablecoin-AVAX vault (proxy) contract address: 0xfbE9613a6bd9d2
 
 #### Stablecoin-Stablecoin
 
-Cesta Avalanche Stablecoin-Stablecoin strategy (implementation) contract address: 0xEAB0F007227C19F28Bff205Ff89fE59B6DD33f48
+Cesta Avalanche Stablecoin-Stablecoin strategy (implementation) contract address: 0x0D605b5fA2Eac22d5d72369deEE6A4D24eEe3e1D
 
 Cesta Avalanche Stablecoin-Stablecoin strategy (proxy) contract address: 0x07b4d7f3b5599E9c345d13813e0C8bad1010D30b
 

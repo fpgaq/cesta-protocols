@@ -53,11 +53,16 @@ contract StableStableStrategy is Initializable {
     IERC20Upgradeable constant USDC = IERC20Upgradeable(0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664);
     IERC20Upgradeable constant DAI = IERC20Upgradeable(0xd586E7F844cEa2F87f50152665BCbc2C279D8d70);
 
-    IERC20Upgradeable constant USDTUSDC = IERC20Upgradeable(0x2E02539203256c83c7a9F6fA6f8608A32A2b1Ca2);
-    IERC20Upgradeable constant USDTDAI = IERC20Upgradeable(0xa6908C7E3Be8F4Cd2eB704B5cB73583eBF56Ee62);
-    IERC20Upgradeable constant USDCDAI = IERC20Upgradeable(0x63ABE32d0Ee76C05a11838722A63e012008416E6);
+    // IERC20Upgradeable constant USDTUSDC = IERC20Upgradeable(0x2E02539203256c83c7a9F6fA6f8608A32A2b1Ca2);
+    // IERC20Upgradeable constant USDTDAI = IERC20Upgradeable(0xa6908C7E3Be8F4Cd2eB704B5cB73583eBF56Ee62);
+    // IERC20Upgradeable constant USDCDAI = IERC20Upgradeable(0x63ABE32d0Ee76C05a11838722A63e012008416E6);
+    IERC20Upgradeable constant USDTUSDC = IERC20Upgradeable(0xc13E562d92F7527c4389Cd29C67DaBb0667863eA);
+    IERC20Upgradeable constant USDTDAI = IERC20Upgradeable(0x7AbaB5474385918820dfBC7f35712084a91B583a);
+    IERC20Upgradeable constant USDCDAI = IERC20Upgradeable(0x221Caccd55F16B5176e14C0e9DBaF9C6807c83c9);
 
-    IRouter constant joeRouter = IRouter(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
+    // IRouter constant joeRouter = IRouter(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
+    IRouter constant pngRouter = IRouter(0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106);
+    IRouter constant lydRouter = IRouter(0xA52aBE4676dbfd04Df42eF7755F01A3c41f28D27);
     ICurve constant curve = ICurve(0x7f90122BF0700F9E7e1F688fe926940E8839F353); // av3pool
 
     IDaoL1Vault public USDTUSDCVault;
@@ -84,28 +89,28 @@ contract StableStableStrategy is Initializable {
         _;
     }
 
-    function initialize(
-        address _USDTUSDCVault, address _USDTDAIVault, address _USDCDAIVault
-    ) external initializer {
+    // function initialize(
+    //     address _USDTUSDCVault, address _USDTDAIVault, address _USDCDAIVault
+    // ) external initializer {
 
-        USDTUSDCVault = IDaoL1Vault(_USDTUSDCVault);
-        USDTDAIVault = IDaoL1Vault(_USDTDAIVault);
-        USDCDAIVault = IDaoL1Vault(_USDCDAIVault);
+    //     USDTUSDCVault = IDaoL1Vault(_USDTUSDCVault);
+    //     USDTDAIVault = IDaoL1Vault(_USDTDAIVault);
+    //     USDCDAIVault = IDaoL1Vault(_USDCDAIVault);
 
-        USDC.safeApprove(address(joeRouter), type(uint).max);
-        USDC.safeApprove(address(curve), type(uint).max);
-        USDT.safeApprove(address(joeRouter), type(uint).max);
-        USDT.safeApprove(address(curve), type(uint).max);
-        DAI.safeApprove(address(joeRouter), type(uint).max);
-        DAI.safeApprove(address(curve), type(uint).max);
+    //     USDC.safeApprove(address(joeRouter), type(uint).max);
+    //     USDC.safeApprove(address(curve), type(uint).max);
+    //     USDT.safeApprove(address(joeRouter), type(uint).max);
+    //     USDT.safeApprove(address(curve), type(uint).max);
+    //     DAI.safeApprove(address(joeRouter), type(uint).max);
+    //     DAI.safeApprove(address(curve), type(uint).max);
 
-        USDTUSDC.safeApprove(address(USDTUSDCVault), type(uint).max);
-        USDTUSDC.safeApprove(address(joeRouter), type(uint).max);
-        USDTDAI.safeApprove(address(USDTDAIVault), type(uint).max);
-        USDTDAI.safeApprove(address(joeRouter), type(uint).max);
-        USDCDAI.safeApprove(address(USDCDAIVault), type(uint).max);
-        USDCDAI.safeApprove(address(joeRouter), type(uint).max);
-    }
+    //     USDTUSDC.safeApprove(address(USDTUSDCVault), type(uint).max);
+    //     USDTUSDC.safeApprove(address(joeRouter), type(uint).max);
+    //     USDTDAI.safeApprove(address(USDTDAIVault), type(uint).max);
+    //     USDTDAI.safeApprove(address(joeRouter), type(uint).max);
+    //     USDCDAI.safeApprove(address(USDCDAIVault), type(uint).max);
+    //     USDCDAI.safeApprove(address(joeRouter), type(uint).max);
+    // }
 
     function invest(uint USDTAmt, uint[] calldata amountsOutMin) external onlyVault {
         USDT.safeTransferFrom(vault, address(this), USDTAmt);
@@ -125,7 +130,7 @@ contract StableStableStrategy is Initializable {
             getCurveId(address(USDT)), getCurveId(address(USDC)), halfUSDT, halfUSDT * 99 / 100
         );
 
-        (,,uint USDTUSDCAmt) = joeRouter.addLiquidity(
+        (,,uint USDTUSDCAmt) = pngRouter.addLiquidity(
             address(USDT), address(USDC), halfUSDT, USDCAmt, 0, 0, address(this), block.timestamp
         );
 
@@ -139,7 +144,7 @@ contract StableStableStrategy is Initializable {
             getCurveId(address(USDT)), getCurveId(address(DAI)), halfUSDT, (halfUSDT * 1e12) * 99 / 100
         );
 
-        (,,uint USDTDAIAmt) = joeRouter.addLiquidity(
+        (,,uint USDTDAIAmt) = lydRouter.addLiquidity(
             address(USDT), address(DAI), halfUSDT, DAIAmt, 0, 0, address(this), block.timestamp
         );
 
@@ -156,7 +161,7 @@ contract StableStableStrategy is Initializable {
         uint DAIAmt = curve.exchange_underlying(
             getCurveId(address(USDC)), getCurveId(address(DAI)), halfUSDC, (halfUSDC * 1e12) * 99 / 100
         );
-        (,,uint USDCDAIAmt) = joeRouter.addLiquidity(
+        (,,uint USDCDAIAmt) = pngRouter.addLiquidity(
             address(USDC), address(DAI), halfUSDC, DAIAmt, 0, 0, address(this), block.timestamp
         );
 
@@ -183,7 +188,7 @@ contract StableStableStrategy is Initializable {
     function withdrawUSDTUSDC(uint sharePerc) private {
         uint USDTUSDCAmt = USDTUSDCVault.withdraw(USDTUSDCVault.balanceOf(address(this)) * sharePerc / 1e18);
 
-        (uint USDTAmt, uint USDCAmt) = joeRouter.removeLiquidity(
+        (uint USDTAmt, uint USDCAmt) = pngRouter.removeLiquidity(
             address(USDT), address(USDC), USDTUSDCAmt, 0, 0, address(this), block.timestamp
         );
 
@@ -197,7 +202,7 @@ contract StableStableStrategy is Initializable {
     function withdrawUSDTDAI(uint sharePerc) private {
         uint USDTDAIAmt = USDTDAIVault.withdraw(USDTDAIVault.balanceOf(address(this)) * sharePerc / 1e18);
 
-        (uint USDTAmt, uint DAIAmt) = joeRouter.removeLiquidity(
+        (uint USDTAmt, uint DAIAmt) = lydRouter.removeLiquidity(
             address(USDT), address(DAI), USDTDAIAmt, 0, 0, address(this), block.timestamp
         );
 
@@ -211,7 +216,7 @@ contract StableStableStrategy is Initializable {
     function withdrawUSDCDAI(uint sharePerc) private {
         uint USDCDAIAmt = USDCDAIVault.withdraw(USDCDAIVault.balanceOf(address(this)) * sharePerc / 1e18);
 
-        (uint USDCAmt, uint DAIAmt) = joeRouter.removeLiquidity(
+        (uint USDCAmt, uint DAIAmt) = pngRouter.removeLiquidity(
             address(USDC), address(DAI), USDCDAIAmt, 0, 0, address(this), block.timestamp
         );
 
@@ -257,6 +262,25 @@ contract StableStableStrategy is Initializable {
         watermark = signs == true ? watermark + amount : watermark - amount;
 
         emit AdjustWatermark(watermark, lastWatermark);
+    }
+
+    /// @notice This function only run once
+    function changeL1Vault(IDaoL1Vault _USDTUSDCVault, IDaoL1Vault _USDTDAIVault, IDaoL1Vault _USDCDAIVault) external {
+        require(msg.sender == 0x3f68A3c1023d736D8Be867CA49Cb18c543373B99, "Only owner");
+        USDTUSDCVault = _USDTUSDCVault;
+        USDTDAIVault = _USDTDAIVault;
+        USDCDAIVault = _USDCDAIVault;
+        USDT.safeApprove(address(pngRouter), type(uint).max);
+        USDC.safeApprove(address(pngRouter), type(uint).max);
+        DAI.safeApprove(address(pngRouter), type(uint).max);
+        USDTUSDC.safeApprove(address(USDTUSDCVault), type(uint).max);
+        USDTUSDC.safeApprove(address(pngRouter), type(uint).max);
+        USDCDAI.safeApprove(address(USDCDAIVault), type(uint).max);
+        USDCDAI.safeApprove(address(pngRouter), type(uint).max);
+        USDT.safeApprove(address(lydRouter), type(uint).max);
+        DAI.safeApprove(address(lydRouter), type(uint).max);
+        USDTDAI.safeApprove(address(USDTDAIVault), type(uint).max);
+        USDTDAI.safeApprove(address(lydRouter), type(uint).max);
     }
 
     function setVault(address _vault) external {

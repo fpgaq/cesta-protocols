@@ -19,9 +19,9 @@ const joeRouterAddr = "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
 const joeStakingContractAddr = "0xd6a4F121CA35509aF06A0Be99093d08462f53052"
 const joeStakingContractV3Addr = "0x188bED1968b795d5c9022F6a0bb5931Ac4c18F00"
 
-const USDTUSDCVaultAddr = "0x6fa8512d7950cAF167a534E45E39A12DA67F150C"
-const USDTDAIVaultAddr = "0xA2ca6C09e9269fD88FCB19a2841c5F7F73a71916"
-const USDCDAIVaultAddr = "0xcc71BE249986072AE6EbA7A67ed89FE7091d130B"
+const USDTUSDCVaultAddr = "0x4d9A85E9C329Be41c6eAb320a8A029EEAe483C62"
+const USDTDAIVaultAddr = "0x51791752Aa31d66c17AB525bf79e06c41929BbBc"
+const USDCDAIVaultAddr = "0x4ABD68371e0cf565596744Fc80a97dE41253deBd"
 
 const pngRouterAddr = "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
 const pngStakingContractAddr = "0x7216d1e173c1f1Ed990239d5c77d74714a837Cd5"
@@ -77,6 +77,8 @@ describe("Cesta Avalanche", function () {
         // const stableStableStrategyImpl = await stableStableStrategyFac.deploy()
         // await proxyAdmin.connect(admin).upgrade(stableStableStrategyProxyAddr, stableStableStrategyImpl.address)
 
+        // await stableStableStrategy.connect(admin).changeL1Vault(USDTUSDCVaultAddr, USDTDAIVaultAddr, USDCDAIVaultAddr)
+
         // Deploy AvaxStableVault
         // const AvaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
         // const avaxStableVaultImpl = await AvaxStableVaultFac.deploy()
@@ -101,8 +103,6 @@ describe("Cesta Avalanche", function () {
         // const avaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
         // const avaxStableVaultImpl = await avaxStableVaultFac.deploy()
         // await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
-
-        // await avaxStableVault.connect(admin).setFees(100, 2000)
 
         // await stableStableStrategy.connect(admin).setVault(avaxStableVault.address)
 
@@ -179,7 +179,7 @@ describe("Cesta Avalanche", function () {
         // console.log(ethers.utils.formatEther((await USDTDAIVault.getPendingRewards())[0])) // 2.719544083533077744
         // console.log(ethers.utils.formatEther((await USDCDAIVault.getPendingRewards())[0])) // 2.383853873375385494
         await USDTUSDCVault.connect(admin).yield()
-        // await USDTDAIVault.connect(admin).yield() // No reward from Trader Joe at the moment
+        await USDTDAIVault.connect(admin).yield()
         await USDCDAIVault.connect(admin).yield()
         // console.log(ethers.utils.formatEther(await USDTUSDCVault.getPricePerFullShare(false))) // 1.000374999517005749
         // console.log(ethers.utils.formatEther(await USDTDAIVault.getPricePerFullShare(false))) // 1.000474838584791507
@@ -209,9 +209,9 @@ describe("Cesta Avalanche", function () {
         await avaxStableVault.connect(client).withdraw((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, amountsOutMin)
         await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
         await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9979.85764
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9985.353307
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9978.012196
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 9985.972429
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9989.774108
+        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9985.284717
 
         // amountsOutMin = await getAmountsOutMinDeXAvax(
         //     avaxStableVault.address, stableStableStrategy.address, (await avaxStableVault.balanceOf(client.address)).div(3), USDCAddr, deployer

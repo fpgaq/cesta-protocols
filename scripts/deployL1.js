@@ -84,32 +84,32 @@ const main = async () => {
     // console.log("DAO L1 LYD-AVAX vault (proxy) contract address:", LYDAVAXVaultAddr)
 
     // Deploy JOE-USDT
-    const dataJOEUSDT = avaxVaultL1Interface.encodeFunctionData(
-        "initialize",
-        [
-            "DAO L1 Joe JOE-USDT", "daoJoeUSDT",
-            joeRouterAddr, joeStakingContractAddr, JOEAddr, 30, false,
-            treasuryAddr, communityAddr, adminAddr,
-        ]
-    )
-    tx = await avaxVaultL1Factory.createVault(dataJOEUSDT)
-    await tx.wait()
-    const JOEUSDTVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
-    console.log("DAO L1 JOE-USDT vault (proxy) contract address:", JOEUSDTVaultAddr)
+    // const dataJOEUSDT = avaxVaultL1Interface.encodeFunctionData(
+    //     "initialize",
+    //     [
+    //         "DAO L1 Joe JOE-USDT", "daoJoeUSDT",
+    //         joeRouterAddr, joeStakingContractAddr, JOEAddr, 30, false,
+    //         treasuryAddr, communityAddr, adminAddr,
+    //     ]
+    // )
+    // tx = await avaxVaultL1Factory.createVault(dataJOEUSDT)
+    // await tx.wait()
+    // const JOEUSDTVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
+    // console.log("DAO L1 JOE-USDT vault (proxy) contract address:", JOEUSDTVaultAddr)
 
     // Deploy PNG-USDC
-    const dataPNGUSDC = avaxVaultL1Interface.encodeFunctionData(
-        "initialize",
-        [
-            "DAO L1 Pangolin PNG-USDC", "daoPngUSDC",
-            pngRouterAddr, pngStakingContractAddr, PNGAddr, 1, true,
-            treasuryAddr, communityAddr, adminAddr,
-        ]
-    )
-    tx = await avaxVaultL1Factory.createVault(dataPNGUSDC)
-    await tx.wait()
-    const PNGUSDCVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
-    console.log("DAO L1 PNG-USDC vault (proxy) contract address:", PNGUSDCVaultAddr)
+    // const dataPNGUSDC = avaxVaultL1Interface.encodeFunctionData(
+    //     "initialize",
+    //     [
+    //         "DAO L1 Pangolin PNG-USDC", "daoPngUSDC",
+    //         pngRouterAddr, pngStakingContractAddr, PNGAddr, 1, true,
+    //         treasuryAddr, communityAddr, adminAddr,
+    //     ]
+    // )
+    // tx = await avaxVaultL1Factory.createVault(dataPNGUSDC)
+    // await tx.wait()
+    // const PNGUSDCVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
+    // console.log("DAO L1 PNG-USDC vault (proxy) contract address:", PNGUSDCVaultAddr)
 
     // // Deploy LYD-DAI
     // const dataLYDDAI = avaxVaultL1Interface.encodeFunctionData(
@@ -208,5 +208,47 @@ const main = async () => {
     // await tx.wait()
     // const USDCDAIVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
     // console.log("DAO L1 USDC-DAI vault (proxy) contract address:", USDCDAIVaultAddr)
+
+    // Deploy USDT-USDC
+    const dataUSDTUSDC = avaxVaultL1Interface.encodeFunctionData(
+        "initialize",
+        [
+            "DAO L1 Png USDT-USDC", "daoUSDTUSDC",
+            pngRouterAddr, pngStakingContractAddr, PNGAddr, 2, true,
+            treasuryAddr, communityAddr, adminAddr,
+        ]
+    )
+    tx = await avaxVaultL1Factory.createVault(dataUSDTUSDC)
+    await tx.wait()
+    const USDTUSDCVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
+    console.log("DAO L1 USDT-USDC vault (proxy) contract address:", USDTUSDCVaultAddr)
+
+    // Deploy USDT-DAI
+    const dataUSDTDAI = avaxVaultL1Interface.encodeFunctionData(
+        "initialize",
+        [
+            "DAO L1 Lyd USDT-DAI", "daoUSDTDAI",
+            lydRouterAddr, lydStakingContractAddr, LYDAddr, 22, false,
+            treasuryAddr, communityAddr, adminAddr,
+        ]
+    )
+    tx = await avaxVaultL1Factory.createVault(dataUSDTDAI)
+    await tx.wait()
+    const USDTDAIVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
+    console.log("DAO L1 USDT-DAI vault (proxy) contract address:", USDTDAIVaultAddr)
+
+    // Deploy USDC-DAI
+    const dataUSDCDAI = avaxVaultL1Interface.encodeFunctionData(
+        "initialize",
+        [
+            "DAO L1 Png USDC-DAI", "daoUSDCDAI",
+            pngRouterAddr, pngStakingContractAddr, PNGAddr, 11, true,
+            treasuryAddr, communityAddr, adminAddr,
+        ]
+    )
+    tx = await avaxVaultL1Factory.createVault(dataUSDCDAI)
+    await tx.wait()
+    const USDCDAIVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
+    console.log("DAO L1 USDC-DAI vault (proxy) contract address:", USDCDAIVaultAddr)
 }
 main()

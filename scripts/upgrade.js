@@ -20,13 +20,20 @@ async function main() {
     // const contractImpl = await contractFac.deploy()
     // await contractImpl.deployTransaction.wait()
     // console.log("New implementation contract:", contractImpl.address)
-    // // const contractImplAddr = "0x254Ba654D6aEBC334693D5e72776c6cCd548FcB1"
+    // const contractImplAddr = "0x0D605b5fA2Eac22d5d72369deEE6A4D24eEe3e1D"
 
     // const proxyAdmin = new ethers.Contract(proxyAdminAddr, ["function upgrade(address, address) external"], deployer)
-    // tx = await proxyAdmin.upgrade(contractProxyAddr, contractImpl.address)
-    // // tx = await proxyAdmin.upgrade(contractProxyAddr, contractImplAddr)
+    // // tx = await proxyAdmin.upgrade(contractProxyAddr, contractImpl.address)
+    // tx = await proxyAdmin.upgrade(contractProxyAddr, contractImplAddr)
     // await tx.wait()
     // console.log("Contract upgraded successfully")
+
+    // const contract = await ethers.getContractAt(contractName, contractProxyAddr, deployer)
+    const USDTUSDCVaultAddr = "0x4d9A85E9C329Be41c6eAb320a8A029EEAe483C62"
+    const USDTDAIVaultAddr = "0x51791752Aa31d66c17AB525bf79e06c41929BbBc"
+    const USDCDAIVaultAddr = "0x4ABD68371e0cf565596744Fc80a97dE41253deBd"
+    // await contract.changeL1Vault(USDTUSDCVaultAddr, USDTDAIVaultAddr, USDCDAIVaultAddr)
+    // console.log("Change L1 vaults successfully")
 
     // // Upgrade AvaxVaultL1
     // const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
@@ -40,12 +47,17 @@ async function main() {
     // await tx.wait()
     // console.log("Contract upgraded successfully")
 
-    const JOEUSDTVault = await ethers.getContractAt("AvaxVaultL1", "0x95921D21029751bF8F65Bb53442b69412C71FFE0", deployer)
-    tx = await JOEUSDTVault.setWhitelistAddress("0x63243f079C2054D6c011d4b5D11F3955D9d5F3F4", true)
+    const strategyContractAddr = "0x07b4d7f3b5599E9c345d13813e0C8bad1010D30b"
+    const USDTUSDCVault = await ethers.getContractAt("AvaxVaultL1", USDTUSDCVaultAddr, deployer)
+    tx = await USDTUSDCVault.setWhitelistAddress(strategyContractAddr, true)
     await tx.wait()
-    const PNGUSDCVault = await ethers.getContractAt("AvaxVaultL1", "0xcd799015fbe5AF106E4D4aDe29D5AF9918bfd318", deployer)
-    tx = await PNGUSDCVault.setWhitelistAddress("0x63243f079C2054D6c011d4b5D11F3955D9d5F3F4", true)
+    const USDCDAIVault = await ethers.getContractAt("AvaxVaultL1", USDCDAIVaultAddr, deployer)
+    tx = await USDCDAIVault.setWhitelistAddress(strategyContractAddr, true)
     await tx.wait()
+    const USDTDAIVault = await ethers.getContractAt("AvaxVaultL1", USDTDAIVaultAddr, deployer)
+    tx = await USDTDAIVault.setWhitelistAddress(strategyContractAddr, true)
+    await tx.wait()
+    console.log("Set whitelist successfully")
 }
 
 main()
