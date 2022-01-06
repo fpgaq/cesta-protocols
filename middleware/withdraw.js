@@ -29,17 +29,17 @@ const JOEAVAXVaultAddr = "0xFe67a4BAe72963BE1181B211180d8e617B5a8dee"
 const PNGAVAXVaultAddr = "0x7eEcFB07b7677aa0e1798a4426b338dA23f9De34"
 const LYDAVAXVaultAddr = "0xffEaB42879038920A31911f3E93295bF703082ed"
 
-const JOEUSDCAddr = "0x67926d973cD8eE876aD210fAaf7DFfA99E414aCf"
-const PNGUSDTAddr = "0x1fFB6ffC629f5D820DCf578409c2d26A2998a140"
+const JOEUSDTAddr = "0x1643de2efB8e35374D796297a9f95f64C082a8ce"
+const PNGUSDCAddr = "0xC33Ac18900b2f63DFb60B554B1F53Cd5b474d4cd"
 const LYDDAIAddr = "0x4EE072c5946B4cdc00CBdeB4A4E54A03CF6d08d3"
 
-const JOEUSDCVaultAddr = "0xC4029ad66AAe4DCF3F8A8C67F4000EAFE49E6d10"
-const PNGUSDTVaultAddr = "0x3d78fDb997995f0bF7C5d881a758C45F1B706b80"
+const JOEUSDTVaultAddr = "0x95921D21029751bF8F65Bb53442b69412C71FFE0"
+const PNGUSDCVaultAddr = "0xcd799015fbe5AF106E4D4aDe29D5AF9918bfd318"
 const LYDDAIVaultAddr = "0x469b5620675a9988c24cDd57B1E7136E162D6a53"
 
-const USDTAVAXAddr = "0x67926d973cD8eE876aD210fAaf7DFfA99E414aCf"
-const USDCAVAXAddr = "0x1fFB6ffC629f5D820DCf578409c2d26A2998a140"
-const DAIAVAXAddr = "0x4EE072c5946B4cdc00CBdeB4A4E54A03CF6d08d3"
+const USDTAVAXAddr = "0x5Fc70cF6A4A858Cf4124013047e408367EBa1ace"
+const USDCAVAXAddr = "0xbd918Ed441767fe7924e99F6a0E0B568ac1970D9"
+const DAIAVAXAddr = "0x87Dee1cC9FFd464B79e058ba20387c1984aed86a"
 
 const USDTAVAXVaultAddr = "0xC4029ad66AAe4DCF3F8A8C67F4000EAFE49E6d10"
 const USDCAVAXVaultAddr = "0x3d78fDb997995f0bF7C5d881a758C45F1B706b80"
@@ -47,18 +47,16 @@ const DAIAVAXVaultAddr = "0x469b5620675a9988c24cDd57B1E7136E162D6a53"
 
 const deXAvaxVaultAddr = "0xE4809Ed214631017737A3d7FA3e78600Ee96Eb85"
 const deXAvaxStrategyAddr = "0x9B403B87d856ae9B640FeE80AD338b6aF78732b4"
-const deXStableVaultAddr = ""
-const deXStableStrategyAddr = ""
-const stableAvaxVaultAddr = ""
-const stableAvaxStrategyAddr = ""
+const deXStableVaultAddr = "0x54f3eEFE81465EE52E4b67e6466D63501a2F5007"
+const deXStableStrategyAddr = "0x63243f079C2054D6c011d4b5D11F3955D9d5F3F4"
+const stableAvaxVaultAddr = "0xfbE9613a6bd9d28ceF286b01357789b2b02E46f5"
+const stableAvaxStrategyAddr = "0xfbE9613a6bd9d28ceF286b01357789b2b02E46f5"
 
 let amountOutMinPerc = 995
 
 const getAmountsOutMinDeXAvax = async (shareToWithdraw, stablecoinAddr, _provider) => {
     const provider = new ethers.providers.Web3Provider(_provider) // Change Web3 provider to Ethers provider
     if (!ethers.BigNumber.isBigNumber(shareToWithdraw)) shareToWithdraw = new ethers.BigNumber.from(shareToWithdraw)
-
-    // amountOutMinPerc = 990
 
     const deXAvaxVault = new ethers.Contract(deXAvaxVaultAddr, avaxVaultABI, provider)
     const deXAvaxStrategy = new ethers.Contract(deXAvaxStrategyAddr, deXAvaxStrategyABI, provider)
@@ -114,20 +112,18 @@ const getAmountsOutMinDeXAvax = async (shareToWithdraw, stablecoinAddr, _provide
     // Vault
     withdrawAmt = (await joeRouter.getAmountsOut(totalWAVAXAmt, [WAVAXAddr, stablecoinAddr]))[1]
     const withdrawAmtMin = withdrawAmt.mul(amountOutMinPerc).div(1000)
-    return [withdrawAmtMin, WAVAXAmtMinJOE, WAVAXAmtMinPNG, WAVAXAmtMinLYD]
+    return [withdrawAmtMin.toString(), WAVAXAmtMinJOE.toString(), WAVAXAmtMinPNG.toString(), WAVAXAmtMinLYD.toString()]
 }
 
 const getAmountsOutMinDeXStable = async (shareToWithdraw, stablecoinAddr, _provider) => {
     const provider = new ethers.providers.Web3Provider(_provider) // Change Web3 provider to Ethers provider
     if (!ethers.BigNumber.isBigNumber(shareToWithdraw)) shareToWithdraw = new ethers.BigNumber.from(shareToWithdraw)
 
-    // amountOutMinPerc = 990
-
     const deXStableVault = new ethers.Contract(deXStableVaultAddr, avaxStableVaultABI, provider)
     const deXStableStrategy = new ethers.Contract(deXStableStrategyAddr, deXStableStrategyABI, provider)
 
-    const JOEUSDCVault = new ethers.Contract(JOEUSDCVaultAddr, avaxVaultL1ABI, provider)
-    const PNGUSDTVault = new ethers.Contract(PNGUSDTVaultAddr, avaxVaultL1ABI, provider)
+    const JOEUSDTVault = new ethers.Contract(JOEUSDTVaultAddr, avaxVaultL1ABI, provider)
+    const PNGUSDCVault = new ethers.Contract(PNGUSDCVaultAddr, avaxVaultL1ABI, provider)
     const LYDDAIVault = new ethers.Contract(LYDDAIVaultAddr, avaxVaultL1ABI, provider)
 
     const joeRouter = new ethers.Contract(joeRouterAddr, router_ABI, provider)
@@ -141,19 +137,19 @@ const getAmountsOutMinDeXStable = async (shareToWithdraw, stablecoinAddr, _provi
     const oneEther = ethers.utils.parseEther("1")
     const sharePerc = withdrawAmt.mul(oneEther).div(allPoolInUSD)
     // JOE
-    const JOEUSDCAmt = (await JOEUSDCVault.balanceOf(deXStableStrategy.address)).mul(sharePerc).div(oneEther)
-    const JOEUSDCContract = new ethers.Contract(JOEUSDCAddr, pair_ABI, provider)
-    const [JOEReserve,] = await JOEUSDCContract.getReserves()
-    const totalSupplyJOEUSDC = await JOEUSDCContract.totalSupply()
-    const JOEAmt = JOEReserve.mul(JOEUSDCAmt).div(totalSupplyJOEUSDC)
+    const JOEUSDTAmt = (await JOEUSDTVault.balanceOf(deXStableStrategy.address)).mul(sharePerc).div(oneEther)
+    const JOEUSDTContract = new ethers.Contract(JOEUSDTAddr, pair_ABI, provider)
+    const [JOEReserve,] = await JOEUSDTContract.getReserves()
+    const totalSupplyJOEUSDT = await JOEUSDTContract.totalSupply()
+    const JOEAmt = JOEReserve.mul(JOEUSDTAmt).div(totalSupplyJOEUSDT)
     const USDCAmt = (await joeRouter.getAmountsOut(JOEAmt, [JOEAddr, USDCAddr]))[1]
     const USDCAmtMin = USDCAmt.mul(amountOutMinPerc).div(1000)
     // PNG
-    const PNGUSDTAmt = (await PNGUSDTVault.balanceOf(deXStableStrategy.address)).mul(sharePerc).div(oneEther)
-    const PNGUSDTContract = new ethers.Contract(PNGUSDTAddr, pair_ABI, provider)
-    const [PNGReserve,] = await PNGUSDTContract.getReserves()
-    const totalSupplyPNGUSDT = await PNGUSDTContract.totalSupply()
-    const PNGAmt = PNGReserve.mul(PNGUSDTAmt).div(totalSupplyPNGUSDT)
+    const PNGUSDCAmt = (await PNGUSDCVault.balanceOf(deXStableStrategy.address)).mul(sharePerc).div(oneEther)
+    const PNGUSDCContract = new ethers.Contract(PNGUSDCAddr, pair_ABI, provider)
+    const [PNGReserve,] = await PNGUSDCContract.getReserves()
+    const totalSupplyPNGUSDC = await PNGUSDCContract.totalSupply()
+    const PNGAmt = PNGReserve.mul(PNGUSDCAmt).div(totalSupplyPNGUSDC)
     const USDTAmt = (await pngRouter.getAmountsOut(PNGAmt, [PNGAddr, USDTAddr]))[1]
     const USDTAmtMin = USDTAmt.mul(amountOutMinPerc).div(1000)
     // LYD
@@ -165,14 +161,12 @@ const getAmountsOutMinDeXStable = async (shareToWithdraw, stablecoinAddr, _provi
     const DAIAmt = (await lydRouter.getAmountsOut(LYDAmt, [LYDAddr, DAIAddr]))[1]
     const DAIAmtMin = DAIAmt.mul(amountOutMinPerc).div(1000)
 
-    return [0, USDCAmtMin, USDTAmtMin, DAIAmtMin]
+    return ["0", USDCAmtMin.toString(), USDTAmtMin.toString(), DAIAmtMin.toString()]
 }
 
 const getAmountsOutMinStableAvax = async (shareToWithdraw, stablecoinAddr, _provider) => {
     const provider = new ethers.providers.Web3Provider(_provider) // Change Web3 provider to Ethers provider
     if (!ethers.BigNumber.isBigNumber(shareToWithdraw)) shareToWithdraw = new ethers.BigNumber.from(shareToWithdraw)
-
-    // amountOutMinPerc = 990
 
     const stableAvaxVault = new ethers.Contract(stableAvaxVaultAddr, avaxStableVaultABI, provider)
     const stableAvaxStrategy = new ethers.Contract(stableAvaxStrategyAddr, stableAvaxStrategyABI, provider)
@@ -216,7 +210,7 @@ const getAmountsOutMinStableAvax = async (shareToWithdraw, stablecoinAddr, _prov
     const DAIAmt = (await joeRouter.getAmountsOut(WAVAXAmtJOE, [WAVAXAddr, DAIAddr]))[1]
     const DAIAmtMin = DAIAmt.mul(amountOutMinPerc).div(1000)
 
-    return [0, USDTAmtMin, USDCAmtMin, DAIAmtMin]
+    return ["0", USDTAmtMin.toString(), USDCAmtMin.toString(), DAIAmtMin.toString()]
 }
 
 module.exports = {
