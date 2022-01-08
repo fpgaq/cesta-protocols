@@ -8,6 +8,7 @@ const stableAvaxStrategyABI = require("./StableAvaxStrategy.json").abi
 const USDTAddr = "0xc7198437980c041c805A1EDcbA50c1Ce5db95118"
 const USDCAddr = "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664"
 const DAIAddr = "0xd586E7F844cEa2F87f50152665BCbc2C279D8d70"
+const MIMAddr = "0x130966628846BFd36ff31a822705796e8cb8C18D"
 const WAVAXAddr = "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
 
 const joeRouterAddr = "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
@@ -20,7 +21,7 @@ const LYDAddr = "0x4c9b4e1ac6f24cde3660d5e4ef1ebf77c710c084"
 
 const deXAvaxStrategyAddr = "0x9B403B87d856ae9B640FeE80AD338b6aF78732b4"
 const deXStableStrategyAddr = "0x63243f079C2054D6c011d4b5D11F3955D9d5F3F4"
-const stableAvaxStrategyAddr = "0xfbE9613a6bd9d28ceF286b01357789b2b02E46f5"
+const stableAvaxStrategyAddr = "0x3845d7c09374Df1ae6Ce4728c99DD20D3d75F414"
 
 const amountOutMinPerc = 995 // 0.5%
 const networkFeePerc = 0
@@ -214,8 +215,8 @@ const getAmountsOutMinStableAvax = async (amountDeposit, stablecoinAddr, _provid
     // Strategy
     if (stablecoinAddr == DAIAddr) amountDeposit = amountDeposit.div(ethers.utils.parseUnits("1", 12))
     const amountInvestUSDTAVAX = amountDeposit.mul(500).div(10000)
-    const amountInvestUSDCAVAX = amountDeposit.mul(4500).div(10000)
-    const amountInvestDAIAVAX = amountDeposit.mul(5000).div(10000)
+    const amountInvestUSDCAVAX = amountDeposit.mul(8000).div(10000)
+    const amountInvestMIMAVAX = amountDeposit.mul(1500).div(10000)
     // Rebalancing - No rebalancing needed for this strategy
     // LYD
     const idealWAVAXAmtLYD = parseFloat(ethers.utils.formatUnits(amountInvestUSDTAVAX.div(2), 6)) / WAVAXPriceInUSD
@@ -231,9 +232,9 @@ const getAmountsOutMinStableAvax = async (amountDeposit, stablecoinAddr, _provid
         throw `Price impact occured (JOE): ${idealWAVAXAmtPNG * 95 / 100}, ${WAVAXAmtPNG}`
     }
     const WAVAXAmtPNGMin = WAVAXAmtPNG.mul(amountOutMinPerc).div(1000)
-    // JOE
-    const idealWAVAXAmtJOE = parseFloat(ethers.utils.formatUnits(amountInvestDAIAVAX.div(2), 6)) / WAVAXPriceInUSD
-    const WAVAXAmtJOE = (await joeRouter.getAmountsOut(amountInvestDAIAVAX.mul(ethers.utils.parseUnits("1", 12)).div(2), [DAIAddr, WAVAXAddr]))[1]
+    // JOE -> replace with PNG MIM-AVAX pair
+    const idealWAVAXAmtJOE = parseFloat(ethers.utils.formatUnits(amountInvestMIMAVAX.div(2), 6)) / WAVAXPriceInUSD
+    const WAVAXAmtJOE = (await joeRouter.getAmountsOut(amountInvestMIMAVAX.mul(ethers.utils.parseUnits("1", 12)).div(2), [MIMAddr, WAVAXAddr]))[1]
     if (idealWAVAXAmtJOE * 95 / 100 > WAVAXAmtJOE) {
         throw `Price impact occured (JOE): ${idealWAVAXAmtJOE * 95 / 100}, ${WAVAXAmtJOE}`
     }

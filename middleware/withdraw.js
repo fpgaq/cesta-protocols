@@ -11,6 +11,7 @@ const stableAvaxStrategyABI = require("./StableAvaxStrategy.json").abi
 const USDTAddr = "0xc7198437980c041c805A1EDcbA50c1Ce5db95118"
 const USDCAddr = "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664"
 const DAIAddr = "0xd586E7F844cEa2F87f50152665BCbc2C279D8d70"
+const MIMAddr = "0x130966628846BFd36ff31a822705796e8cb8C18D"
 const WAVAXAddr = "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7"
 
 const joeRouterAddr = "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
@@ -40,17 +41,19 @@ const LYDDAIVaultAddr = "0x469b5620675a9988c24cDd57B1E7136E162D6a53"
 const USDTAVAXAddr = "0x5Fc70cF6A4A858Cf4124013047e408367EBa1ace"
 const USDCAVAXAddr = "0xbd918Ed441767fe7924e99F6a0E0B568ac1970D9"
 const DAIAVAXAddr = "0x87Dee1cC9FFd464B79e058ba20387c1984aed86a"
+const MIMAVAXAddr = "0x239aAE4AaBB5D60941D7DFFAeaFE8e063C63Ab25"
 
 const USDTAVAXVaultAddr = "0xC4029ad66AAe4DCF3F8A8C67F4000EAFE49E6d10"
 const USDCAVAXVaultAddr = "0x3d78fDb997995f0bF7C5d881a758C45F1B706b80"
 const DAIAVAXVaultAddr = "0x469b5620675a9988c24cDd57B1E7136E162D6a53"
+const MIMAVAXVaultAddr = "0x8fFa3a48eC7D7Ad9b8740733deCFB9876d8849b3"
 
 const deXAvaxVaultAddr = "0xE4809Ed214631017737A3d7FA3e78600Ee96Eb85"
 const deXAvaxStrategyAddr = "0x9B403B87d856ae9B640FeE80AD338b6aF78732b4"
 const deXStableVaultAddr = "0x54f3eEFE81465EE52E4b67e6466D63501a2F5007"
 const deXStableStrategyAddr = "0x63243f079C2054D6c011d4b5D11F3955D9d5F3F4"
 const stableAvaxVaultAddr = "0xfbE9613a6bd9d28ceF286b01357789b2b02E46f5"
-const stableAvaxStrategyAddr = "0xfbE9613a6bd9d28ceF286b01357789b2b02E46f5"
+const stableAvaxStrategyAddr = "0x3845d7c09374Df1ae6Ce4728c99DD20D3d75F414"
 
 let amountOutMinPerc = 995
 
@@ -173,7 +176,7 @@ const getAmountsOutMinStableAvax = async (shareToWithdraw, stablecoinAddr, _prov
 
     const USDTAVAXVault = new ethers.Contract(USDTAVAXVaultAddr, avaxVaultL1ABI, provider)
     const USDCAVAXVault = new ethers.Contract(USDCAVAXVaultAddr, avaxVaultL1ABI, provider)
-    const DAIAVAXVault = new ethers.Contract(DAIAVAXVaultAddr, avaxVaultL1ABI, provider)
+    const MIMAVAXVault = new ethers.Contract(MIMAVAXVaultAddr, avaxVaultL1ABI, provider)
 
     const joeRouter = new ethers.Contract(joeRouterAddr, router_ABI, provider)
     const pngRouter = new ethers.Contract(pngRouterAddr, router_ABI, provider)
@@ -201,16 +204,16 @@ const getAmountsOutMinStableAvax = async (shareToWithdraw, stablecoinAddr, _prov
     const WAVAXAmtPNG = WAVAXReservePNG.mul(USDCAVAXAmt).div(totalSupplyUSDCAVAX)
     const USDCAmt = (await pngRouter.getAmountsOut(WAVAXAmtPNG, [WAVAXAddr, USDCAddr]))[1]
     const USDCAmtMin = USDCAmt.mul(amountOutMinPerc).div(1000)
-    // JOE
-    const DAIAVAXAmt = (await DAIAVAXVault.balanceOf(stableAvaxStrategy.address)).mul(sharePerc).div(oneEther)
-    const DAIAVAXContract = new ethers.Contract(DAIAVAXAddr, pair_ABI, provider)
-    const [WAVAXReserveJOE,] = await DAIAVAXContract.getReserves()
-    const totalSupplyDAIAVAX = await DAIAVAXContract.totalSupply()
-    const WAVAXAmtJOE = WAVAXReserveJOE.mul(DAIAVAXAmt).div(totalSupplyDAIAVAX)
-    const DAIAmt = (await joeRouter.getAmountsOut(WAVAXAmtJOE, [WAVAXAddr, DAIAddr]))[1]
-    const DAIAmtMin = DAIAmt.mul(amountOutMinPerc).div(1000)
+    // PNG
+    const MIMAVAXAmt = (await MIMAVAXVault.balanceOf(stableAvaxStrategy.address)).mul(sharePerc).div(oneEther)
+    const MIMAVAXContract = new ethers.Contract(MIMAVAXAddr, pair_ABI, provider)
+    const [WAVAXReserveJOE,] = await MIMAVAXContract.getReserves()
+    const totalSupplyMIMAVAX = await MIMAVAXContract.totalSupply()
+    const WAVAXAmtJOE = WAVAXReserveJOE.mul(MIMAVAXAmt).div(totalSupplyMIMAVAX)
+    const MIMAmt = (await joeRouter.getAmountsOut(WAVAXAmtJOE, [WAVAXAddr, MIMAddr]))[1]
+    const MIMAmtMin = MIMAmt.mul(amountOutMinPerc).div(1000)
 
-    return ["0", USDTAmtMin.toString(), USDCAmtMin.toString(), DAIAmtMin.toString()]
+    return ["0", USDTAmtMin.toString(), USDCAmtMin.toString(), MIMAmtMin.toString()]
 }
 
 module.exports = {

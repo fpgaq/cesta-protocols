@@ -4,45 +4,47 @@
 
 ### Mainnet
 
-#### L1
+#### L1 on DAOventures
 
-Cesta L1 Avalanche vault (implementation) contract address: 0xB5106A17739883d057eCe5102bE33C5DB95B66e1
+DAO L1 Avalanche vault (implementation) contract address: 0xB5106A17739883d057eCe5102bE33C5DB95B66e1
 
-Cesta L1 Avalanche factory contract address: 0x04DDc3281f71DC70879E312BbF759d54f514f07f
+DAO L1 Avalanche factory contract address: 0x04DDc3281f71DC70879E312BbF759d54f514f07f
 
-Cesta L1 JOE-AVAX vault (proxy) contract address: 0xFe67a4BAe72963BE1181B211180d8e617B5a8dee
+DAO L1 JOE-AVAX vault (proxy) contract address: 0xFe67a4BAe72963BE1181B211180d8e617B5a8dee
 
-Cesta L1 PNG-AVAX vault (proxy) contract address: 0x7eEcFB07b7677aa0e1798a4426b338dA23f9De34
+DAO L1 PNG-AVAX vault (proxy) contract address: 0x7eEcFB07b7677aa0e1798a4426b338dA23f9De34
 
-Cesta L1 LYD-AVAX vault (proxy) contract address: 0xffEaB42879038920A31911f3E93295bF703082ed
+DAO L1 LYD-AVAX vault (proxy) contract address: 0xffEaB42879038920A31911f3E93295bF703082ed
 
-Cesta L1 JOE-USDC vault (proxy) contract address: 0xC4029ad66AAe4DCF3F8A8C67F4000EAFE49E6d10 // Depreciated
+DAO L1 JOE-USDC vault (proxy) contract address: 0xC4029ad66AAe4DCF3F8A8C67F4000EAFE49E6d10 // Depreciated
 
-Cesta L1 JOE-USDT vault (proxy) contract address: 0x95921D21029751bF8F65Bb53442b69412C71FFE0 // Replace JOE-USDC
+DAO L1 JOE-USDT vault (proxy) contract address: 0x95921D21029751bF8F65Bb53442b69412C71FFE0 // Replace JOE-USDC
 
-Cesta L1 PNG-USDT vault (proxy) contract address: 0x12bD78eF81bd767B9014aD4Ec61a6F209DDB659F // Depreciated
+DAO L1 PNG-USDT vault (proxy) contract address: 0x12bD78eF81bd767B9014aD4Ec61a6F209DDB659F // Depreciated
 
-Cesta L1 PNG-USDC vault (proxy) contract address: 0xcd799015fbe5AF106E4D4aDe29D5AF9918bfd318 // Replace PNG-USDT
+DAO L1 PNG-USDC vault (proxy) contract address: 0xcd799015fbe5AF106E4D4aDe29D5AF9918bfd318 // Replace PNG-USDT
 
-Cesta L1 LYD-DAI vault (proxy) contract address: 0x469b5620675a9988c24cDd57B1E7136E162D6a53
+DAO L1 LYD-DAI vault (proxy) contract address: 0x469b5620675a9988c24cDd57B1E7136E162D6a53
 
-Cesta L1 USDT-AVAX vault (proxy) contract address: 0x82AFf9e3f08e34D61737b035c5890d57803B3958
+DAO L1 USDT-AVAX vault (proxy) contract address: 0x82AFf9e3f08e34D61737b035c5890d57803B3958
 
-Cesta L1 USDC-AVAX vault (proxy) contract address: 0x5378B730711D1f57F888e4828b130E591c4Ea97b
+DAO L1 USDC-AVAX vault (proxy) contract address: 0x5378B730711D1f57F888e4828b130E591c4Ea97b
 
-Cesta L1 DAI-AVAX vault (proxy) contract address: 0x308555fb3083A300A03dEfFfa311D2eAF2CD56C8
+DAO L1 DAI-AVAX vault (proxy) contract address: 0x308555fb3083A300A03dEfFfa311D2eAF2CD56C8 // Depreciated
 
-Cesta L1 USDT-USDC vault (proxy, JOE) contract address: 0x6fa8512d7950cAF167a534E45E39A12DA67F150C // Depreciated
+DAO L1 MIM-AVAX vault (proxy) contract address: 0x8fFa3a48eC7D7Ad9b8740733deCFB9876d8849b3 // Replace DAI-AVAX
 
-Cesta L1 USDT-DAI vault (proxy, JOE) contract address: 0xA2ca6C09e9269fD88FCB19a2841c5F7F73a71916 // Depreciated
+DAO L1 USDT-USDC vault (proxy, JOE) contract address: 0x6fa8512d7950cAF167a534E45E39A12DA67F150C // Depreciated
 
-Cesta L1 USDC-DAI vault (proxy, JOE) contract address: 0xcc71BE249986072AE6EbA7A67ed89FE7091d130B // Depreciated
+DAO L1 USDT-DAI vault (proxy, JOE) contract address: 0xA2ca6C09e9269fD88FCB19a2841c5F7F73a71916 // Depreciated
 
-Cesta L1 USDT-USDC vault (proxy, PNG) contract address: 0x4d9A85E9C329Be41c6eAb320a8A029EEAe483C62 // Replace Trader Joe USDT-USDC
+DAO L1 USDC-DAI vault (proxy, JOE) contract address: 0xcc71BE249986072AE6EbA7A67ed89FE7091d130B // Depreciated
 
-Cesta L1 USDT-DAI vault (proxy, LYD) contract address: 0x51791752Aa31d66c17AB525bf79e06c41929BbBc // Replace Trader Joe USDT-DAI
+DAO L1 USDT-USDC vault (proxy, PNG) contract address: 0x4d9A85E9C329Be41c6eAb320a8A029EEAe483C62 // Replace Trader Joe USDT-USDC
 
-Cesta L1 USDC-DAI vault (proxy, PNG) contract address: 0x4ABD68371e0cf565596744Fc80a97dE41253deBd // Replace Trader Joe USDC-DAI
+DAO L1 USDT-DAI vault (proxy, LYD) contract address: 0x51791752Aa31d66c17AB525bf79e06c41929BbBc // Replace Trader Joe USDT-DAI
+
+DAO L1 USDC-DAI vault (proxy, PNG) contract address: 0x4ABD68371e0cf565596744Fc80a97dE41253deBd // Replace Trader Joe USDC-DAI
 
 #### DeXToken-AVAX
 
