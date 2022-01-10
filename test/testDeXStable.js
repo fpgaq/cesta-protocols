@@ -11,16 +11,16 @@ const WAVAXAddr = "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7"
 const JOEAddr = "0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd"
 const PNGAddr = "0x60781C2586D68229fde47564546784ab3fACA982"
 const LYDAddr = "0x4C9B4E1AC6F24CdE3660D5E4Ef1eBF77C710C084"
-const JOEUSDCAddr = "0x67926d973cD8eE876aD210fAaf7DFfA99E414aCf"
-const PNGUSDTAddr = "0x1fFB6ffC629f5D820DCf578409c2d26A2998a140"
+const JOEUSDTAddr = ""
+const PNGUSDCAddr = ""
 const LYDDAIAddr = "0x4EE072c5946B4cdc00CBdeB4A4E54A03CF6d08d3"
 
 const joeRouterAddr = "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
 const joeStakingContractAddr = "0xd6a4F121CA35509aF06A0Be99093d08462f53052"
 const joeStakingContractV3Addr = "0x188bED1968b795d5c9022F6a0bb5931Ac4c18F00"
 
-const JOEUSDTVaultAddr = "0x95921D21029751bF8F65Bb53442b69412C71FFE0"
-const PNGUSDCVaultAddr = "0xcd799015fbe5AF106E4D4aDe29D5AF9918bfd318"
+const JOEUSDTVaultAddr = "0xaC8Ce7535d8E3D911A9aFD9d9260f0eC8722B053"
+const PNGUSDCVaultAddr = "0xD57AEEa053b94d4f2DE266b92FA794D73aDb0789"
 const LYDDAIVaultAddr = "0x469b5620675a9988c24cDd57B1E7136E162D6a53"
 
 const pngRouterAddr = "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
@@ -49,11 +49,11 @@ describe("Cesta Avalanche", function () {
         // Upgrade AvaxVaultL1
         // const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
         // const avaxVaultL1Impl = await avaxVaultL1Fac.deploy()
-        const avaxVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
+        // const avaxVaultL1Factory = await ethers.getContractAt("AvaxVaultL1Factory", "0x04DDc3281f71DC70879E312BbF759d54f514f07f", deployer)
         // await avaxVaultL1Factory.connect(admin).updateLogic(avaxVaultL1Impl.address)
 
-        const avaxVaultL1Artifact = await artifacts.readArtifact("AvaxVaultL1")
-        const avaxVaultL1Interface = new ethers.utils.Interface(avaxVaultL1Artifact.abi)
+        // const avaxVaultL1Artifact = await artifacts.readArtifact("AvaxVaultL1")
+        // const avaxVaultL1Interface = new ethers.utils.Interface(avaxVaultL1Artifact.abi)
 
         // Deploy JOE-USDT
         // const dataJOEUSDT = avaxVaultL1Interface.encodeFunctionData(
@@ -91,22 +91,20 @@ describe("Cesta Avalanche", function () {
         // const deXStableStrategyInterface = new ethers.utils.Interface(deXStableStrategyArtifact.abi)
         // const dataDeXStableStrategy = deXStableStrategyInterface.encodeFunctionData(
         //     "initialize",
-        //     [JOEUSDCVaultAddr, PNGUSDTVaultAddr, LYDDAIVaultAddr]
+        //     [JOEUSDTVaultAddr, PNGUSDCVaultAddr, LYDDAIVaultAddr]
         // )
         // const DeXStableStrategyProxy = await ethers.getContractFactory("AvaxProxy", deployer)
         // const deXStableStrategyProxy = await DeXStableStrategyProxy.deploy(
         //     deXStableStrategyImpl.address, proxyAdmin.address, dataDeXStableStrategy,
         // )
         // const deXStableStrategy = await ethers.getContractAt("DeXStableStrategy", deXStableStrategyProxy.address, deployer)
-        const deXStableStrategyProxyAddr = "0x63243f079C2054D6c011d4b5D11F3955D9d5F3F4"
+        const deXStableStrategyProxyAddr = "0xaF6a371F3d3B83EF2C46ffb4242306bcC4aE1102"
         const deXStableStrategy = await ethers.getContractAt("DeXStableStrategy", deXStableStrategyProxyAddr, deployer)
 
         // Upgrade DeXStableStrategy
         // const deXStableStrategyFac = await ethers.getContractFactory("DeXStableStrategy", deployer)
         // const deXStableStrategyImpl = await deXStableStrategyFac.deploy()
         // await proxyAdmin.connect(admin).upgrade(deXStableStrategyProxyAddr, deXStableStrategyImpl.address)
-
-        // await deXStableStrategy.connect(admin).migrateFunds(JOEUSDTVaultAddr, PNGUSDCVaultAddr)
 
         // Deploy AvaxStableVault
         // const AvaxStableVaultFac = await ethers.getContractFactory("AvaxStableVault", deployer)
@@ -125,7 +123,7 @@ describe("Cesta Avalanche", function () {
         //     avaxStableVaultImpl.address, proxyAdmin.address, dataAvaxStableVault,
         // )
         // const avaxStableVault = await ethers.getContractAt("AvaxStableVault", avaxStableVaultProxy.address, deployer)
-        const avaxStableVaultProxyAddr = "0x54f3eEFE81465EE52E4b67e6466D63501a2F5007"
+        const avaxStableVaultProxyAddr = "0x46C232eF979083923Dd194Ef5223288B0A0fd781"
         const avaxStableVault = await ethers.getContractAt("AvaxStableVault", avaxStableVaultProxyAddr, deployer)
 
         // Upgrade AvaxStableVault
@@ -139,11 +137,9 @@ describe("Cesta Avalanche", function () {
         // await deXStableStrategy.connect(admin).setVault(avaxStableVault.address)
 
         // Set whitelist
-        // await JOEUSDCVault.connect(admin).setWhitelistAddress(deXStableStrategy.address, true)
-        // await PNGUSDTVault.connect(admin).setWhitelistAddress(deXStableStrategy.address, true)
-        // await LYDDAIVault.connect(admin).setWhitelistAddress(deXStableStrategy.address, true)
         // await JOEUSDTVault.connect(admin).setWhitelistAddress(deXStableStrategy.address, true)
         // await PNGUSDCVault.connect(admin).setWhitelistAddress(deXStableStrategy.address, true)
+        // await LYDDAIVault.connect(admin).setWhitelistAddress(deXStableStrategy.address, true)
 
         // Swap & transfer Stablecoins to client
         const joeRouter = new ethers.Contract(joeRouterAddr, router_ABI, deployer)    
@@ -168,7 +164,7 @@ describe("Cesta Avalanche", function () {
         await USDCContract.transfer(client3.address, ethers.utils.parseUnits("10000", 6))
         await DAIContract.transfer(client.address, ethers.utils.parseUnits("10000", 18))
 
-        // // Deposit
+        // Deposit
         amountsOutMin = [0, 0, 0, 0]
         await USDTContract.connect(client).approve(avaxStableVault.address, ethers.constants.MaxUint256)
         await USDCContract.connect(client).approve(avaxStableVault.address, ethers.constants.MaxUint256)
@@ -222,7 +218,7 @@ describe("Cesta Avalanche", function () {
         // console.log(ethers.utils.formatEther(await avaxStableVault.getPricePerFullShare())) // 1.002533579239154478
 
         // Release fees
-        // await avaxStableVault.connect(admin).releaseFees()
+        await avaxStableVault.connect(admin).releaseFees()
         // const lpTokenAmt = await avaxStableVault.balanceOf(adminAddr)
         // const ppfs = await avaxStableVault.getPricePerFullShare()
         // console.log(ethers.utils.formatEther(lpTokenAmt.mul(ppfs).div(ethers.utils.parseEther("1"))))

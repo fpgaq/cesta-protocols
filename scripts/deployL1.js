@@ -86,32 +86,32 @@ const main = async () => {
     // console.log("DAO L1 LYD-AVAX vault (proxy) contract address:", LYDAVAXVaultAddr)
 
     // Deploy JOE-USDT
-    // const dataJOEUSDT = avaxVaultL1Interface.encodeFunctionData(
-    //     "initialize",
-    //     [
-    //         "DAO L1 Joe JOE-USDT", "daoJoeUSDT",
-    //         joeRouterAddr, joeStakingContractAddr, JOEAddr, 30, false,
-    //         treasuryAddr, communityAddr, adminAddr,
-    //     ]
-    // )
-    // tx = await avaxVaultL1Factory.createVault(dataJOEUSDT)
-    // await tx.wait()
-    // const JOEUSDTVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
-    // console.log("DAO L1 JOE-USDT vault (proxy) contract address:", JOEUSDTVaultAddr)
+    const dataJOEUSDT = avaxVaultL1Interface.encodeFunctionData(
+        "initialize",
+        [
+            "DAO L1 Joe JOE-USDT", "daoJoeUSDT",
+            joeRouterAddr, joeStakingContractAddr, JOEAddr, 30, false,
+            treasuryAddr, communityAddr, adminAddr,
+        ]
+    )
+    tx = await avaxVaultL1Factory.createVault(dataJOEUSDT)
+    await tx.wait()
+    const JOEUSDTVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
+    console.log("DAO L1 JOE-USDT vault (proxy) contract address:", JOEUSDTVaultAddr)
 
     // Deploy PNG-USDC
-    // const dataPNGUSDC = avaxVaultL1Interface.encodeFunctionData(
-    //     "initialize",
-    //     [
-    //         "DAO L1 Pangolin PNG-USDC", "daoPngUSDC",
-    //         pngRouterAddr, pngStakingContractAddr, PNGAddr, 1, true,
-    //         treasuryAddr, communityAddr, adminAddr,
-    //     ]
-    // )
-    // tx = await avaxVaultL1Factory.createVault(dataPNGUSDC)
-    // await tx.wait()
-    // const PNGUSDCVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
-    // console.log("DAO L1 PNG-USDC vault (proxy) contract address:", PNGUSDCVaultAddr)
+    const dataPNGUSDC = avaxVaultL1Interface.encodeFunctionData(
+        "initialize",
+        [
+            "DAO L1 Pangolin PNG-USDC", "daoPngUSDC",
+            pngRouterAddr, pngStakingContractAddr, PNGAddr, 1, true,
+            treasuryAddr, communityAddr, adminAddr,
+        ]
+    )
+    tx = await avaxVaultL1Factory.createVault(dataPNGUSDC)
+    await tx.wait()
+    const PNGUSDCVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
+    console.log("DAO L1 PNG-USDC vault (proxy) contract address:", PNGUSDCVaultAddr)
 
     // // Deploy LYD-DAI
     // const dataLYDDAI = avaxVaultL1Interface.encodeFunctionData(
@@ -170,18 +170,18 @@ const main = async () => {
     // console.log("DAO L1 DAI-AVAX vault (proxy) contract address:", DAIAVAXVaultAddr)
 
     // Deploy MIM-AVAX
-    const dataMIMAVAX = avaxVaultL1Interface.encodeFunctionData(
-        "initialize",
-        [
-            "DAO L1 Pangolin MIM-AVAX", "daoPngMIM",
-            pngRouterAddr, pngStakingContractAddr, PNGAddr, 52, true,
-            treasuryAddr, communityAddr, adminAddr,
-        ]
-    )
-    tx = await avaxVaultL1Factory.createVault(dataMIMAVAX)
-    await tx.wait()
-    const MIMAVAXVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
-    console.log("DAO L1 MIM-AVAX vault (proxy) contract address:", MIMAVAXVaultAddr)
+    // const dataMIMAVAX = avaxVaultL1Interface.encodeFunctionData(
+    //     "initialize",
+    //     [
+    //         "DAO L1 Pangolin MIM-AVAX", "daoPngMIM",
+    //         pngRouterAddr, pngStakingContractAddr, PNGAddr, 52, true,
+    //         treasuryAddr, communityAddr, adminAddr,
+    //     ]
+    // )
+    // tx = await avaxVaultL1Factory.createVault(dataMIMAVAX)
+    // await tx.wait()
+    // const MIMAVAXVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
+    // console.log("DAO L1 MIM-AVAX vault (proxy) contract address:", MIMAVAXVaultAddr)
 
     // // Deploy USDT-USDC
     // const dataUSDTUSDC = avaxVaultL1Interface.encodeFunctionData(

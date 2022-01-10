@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat")
 
-const JOEUSDCVaultAddr = "0xC4029ad66AAe4DCF3F8A8C67F4000EAFE49E6d10"
-const PNGUSDTVaultAddr = "0x12bD78eF81bd767B9014aD4Ec61a6F209DDB659F"
+const JOEUSDTVaultAddr = "0xaC8Ce7535d8E3D911A9aFD9d9260f0eC8722B053"
+const PNGUSDCVaultAddr = "0xD57AEEa053b94d4f2DE266b92FA794D73aDb0789"
 const LYDDAIVaultAddr = "0x469b5620675a9988c24cDd57B1E7136E162D6a53"
 
 const treasuryAddr = "0x3f68A3c1023d736D8Be867CA49Cb18c543373B99"
@@ -30,7 +30,7 @@ const main = async () => {
     const deXStableStrategyInterface = new ethers.utils.Interface(deXStableStrategyArtifact.abi)
     const dataDeXStableStrategy = deXStableStrategyInterface.encodeFunctionData(
         "initialize",
-        [JOEUSDCVaultAddr, PNGUSDTVaultAddr, LYDDAIVaultAddr]
+        [JOEUSDTVaultAddr, PNGUSDCVaultAddr, LYDDAIVaultAddr]
     )
     const DeXStableStrategyProxy = await ethers.getContractFactory("AvaxProxy", deployer)
     const deXStableStrategyProxy = await DeXStableStrategyProxy.deploy(
@@ -66,11 +66,11 @@ const main = async () => {
     console.log("Set vault successfully")
 
     // Set whitelist
-    const JOEUSDCVault = await ethers.getContractAt("AvaxVaultL1", JOEUSDCVaultAddr, deployer)
-    tx = await JOEUSDCVault.setWhitelistAddress(deXStableStrategy.address, true)
+    const JOEUSDTVault = await ethers.getContractAt("AvaxVaultL1", JOEUSDTVaultAddr, deployer)
+    tx = await JOEUSDTVault.setWhitelistAddress(deXStableStrategy.address, true)
     await tx.wait()
-    const PNGUSDTVault = await ethers.getContractAt("AvaxVaultL1", PNGUSDTVaultAddr, deployer)
-    tx = await PNGUSDTVault.setWhitelistAddress(deXStableStrategy.address, true)
+    const PNGUSDCVault = await ethers.getContractAt("AvaxVaultL1", PNGUSDCVaultAddr, deployer)
+    tx = await PNGUSDCVault.setWhitelistAddress(deXStableStrategy.address, true)
     await tx.wait()
     const LYDDAIVault = await ethers.getContractAt("AvaxVaultL1", LYDDAIVaultAddr, deployer)
     tx = await LYDDAIVault.setWhitelistAddress(deXStableStrategy.address, true)

@@ -20,9 +20,13 @@ DAO L1 JOE-USDC vault (proxy) contract address: 0xC4029ad66AAe4DCF3F8A8C67F4000E
 
 DAO L1 JOE-USDT vault (proxy) contract address: 0x95921D21029751bF8F65Bb53442b69412C71FFE0 // Replace JOE-USDC
 
+DAO L1 JOE-USDT vault (proxy) contract address: 0xaC8Ce7535d8E3D911A9aFD9d9260f0eC8722B053 // Replace JOE-USDT above due to decimal issue
+
 DAO L1 PNG-USDT vault (proxy) contract address: 0x12bD78eF81bd767B9014aD4Ec61a6F209DDB659F // Depreciated
 
 DAO L1 PNG-USDC vault (proxy) contract address: 0xcd799015fbe5AF106E4D4aDe29D5AF9918bfd318 // Replace PNG-USDT
+
+DAO L1 PNG-USDC vault (proxy) contract address: 0xD57AEEa053b94d4f2DE266b92FA794D73aDb0789 // Replace PNG-USDC above due to decimal issue
 
 DAO L1 LYD-DAI vault (proxy) contract address: 0x469b5620675a9988c24cDd57B1E7136E162D6a53
 
@@ -56,11 +60,11 @@ Cesta Avalanche DeXToken-AVAX vault (proxy) contract address: 0xE4809Ed214631017
 
 #### DeXToken-Stablecoin
 
-Cesta Avalanche DeXToken-Stablecoin strategy (implementation) contract address: 0x7f55ee39ca34b6213f19b2F3e4da7975baDcB92b
+Cesta Avalanche DeXToken-Stablecoin strategy (implementation) contract address: 0xd310f4c438f61aC246090F6604F0EDB8520A2965
 
-Cesta Avalanche DeXToken-Stablecoin strategy (proxy) contract address: 0x63243f079C2054D6c011d4b5D11F3955D9d5F3F4
+Cesta Avalanche DeXToken-Stablecoin strategy (proxy) contract address: 0xaF6a371F3d3B83EF2C46ffb4242306bcC4aE1102
 
-Cesta Avalanche DeXToken-Stablecoin vault (proxy) contract address: 0x54f3eEFE81465EE52E4b67e6466D63501a2F5007
+Cesta Avalanche DeXToken-Stablecoin vault (proxy) contract address: 0x46C232eF979083923Dd194Ef5223288B0A0fd781
 
 #### Stablecoin-AVAX
 

@@ -56,10 +56,8 @@ contract DeXStableStrategy is Initializable {
     IERC20Upgradeable constant USDC = IERC20Upgradeable(0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664);
     IERC20Upgradeable constant DAI = IERC20Upgradeable(0xd586E7F844cEa2F87f50152665BCbc2C279D8d70);
 
-    IERC20Upgradeable constant JOEUSDC = IERC20Upgradeable(0x67926d973cD8eE876aD210fAaf7DFfA99E414aCf); // Depreciated
-    IERC20Upgradeable constant JOEUSDT = IERC20Upgradeable(0x1643de2efB8e35374D796297a9f95f64C082a8ce); // Replace JOEUSDC
-    IERC20Upgradeable constant PNGUSDT = IERC20Upgradeable(0x1fFB6ffC629f5D820DCf578409c2d26A2998a140); // Depreciated
-    IERC20Upgradeable constant PNGUSDC = IERC20Upgradeable(0xC33Ac18900b2f63DFb60B554B1F53Cd5b474d4cd); // Replace PNGUSDT
+    IERC20Upgradeable constant JOEUSDT = IERC20Upgradeable(0x1643de2efB8e35374D796297a9f95f64C082a8ce);
+    IERC20Upgradeable constant PNGUSDC = IERC20Upgradeable(0xC33Ac18900b2f63DFb60B554B1F53Cd5b474d4cd);
     IERC20Upgradeable constant LYDDAI = IERC20Upgradeable(0x4EE072c5946B4cdc00CBdeB4A4E54A03CF6d08d3);
 
     IRouter constant joeRouter = IRouter(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
@@ -67,15 +65,11 @@ contract DeXStableStrategy is Initializable {
     IRouter constant lydRouter = IRouter(0xA52aBE4676dbfd04Df42eF7755F01A3c41f28D27);
     ICurve constant curve = ICurve(0x7f90122BF0700F9E7e1F688fe926940E8839F353); // av3pool
 
-    IDaoL1Vault public JOEUSDCVault; // Depreciated
-    IDaoL1Vault public PNGUSDTVault; // Depreciated
+    IDaoL1Vault public JOEUSDTVault;
+    IDaoL1Vault public PNGUSDCVault;
     IDaoL1Vault public LYDDAIVault;
 
     address public vault;
-
-    // Newly variable added after upgrade
-    IDaoL1Vault public JOEUSDTVault; // Replace JOEUSDC
-    IDaoL1Vault public PNGUSDCVault; // Replace PNGUSDT
     uint public watermark; // In USD (18 decimals)
     uint public profitFeePerc;
 
@@ -97,31 +91,31 @@ contract DeXStableStrategy is Initializable {
         _;
     }
 
-    // function initialize(
-    //     address _JOEUSDCVault, address _PNGUSDTVault, address _LYDDAIVault
-    // ) external initializer {
+    function initialize(
+        address _JOEUSDTVault, address _PNGUSDCVault, address _LYDDAIVault
+    ) external initializer {
 
-    //     JOEUSDCVault = IDaoL1Vault(_JOEUSDCVault);
-    //     PNGUSDTVault = IDaoL1Vault(_PNGUSDTVault);
-    //     LYDDAIVault = IDaoL1Vault(_LYDDAIVault);
+        JOEUSDTVault = IDaoL1Vault(_JOEUSDTVault);
+        PNGUSDCVault = IDaoL1Vault(_PNGUSDCVault);
+        LYDDAIVault = IDaoL1Vault(_LYDDAIVault);
 
-    //     USDC.safeApprove(address(joeRouter), type(uint).max);
-    //     USDC.safeApprove(address(curve), type(uint).max);
-    //     USDT.safeApprove(address(pngRouter), type(uint).max);
-    //     USDT.safeApprove(address(curve), type(uint).max);
-    //     DAI.safeApprove(address(lydRouter), type(uint).max);
-    //     DAI.safeApprove(address(curve), type(uint).max);
-    //     JOE.safeApprove(address(joeRouter), type(uint).max);
-    //     PNG.safeApprove(address(pngRouter), type(uint).max);
-    //     LYD.safeApprove(address(lydRouter), type(uint).max);
+        USDT.safeApprove(address(joeRouter), type(uint).max);
+        USDT.safeApprove(address(curve), type(uint).max);
+        USDC.safeApprove(address(pngRouter), type(uint).max);
+        USDC.safeApprove(address(curve), type(uint).max);
+        DAI.safeApprove(address(lydRouter), type(uint).max);
+        DAI.safeApprove(address(curve), type(uint).max);
+        JOE.safeApprove(address(joeRouter), type(uint).max);
+        PNG.safeApprove(address(pngRouter), type(uint).max);
+        LYD.safeApprove(address(lydRouter), type(uint).max);
 
-    //     JOEUSDC.safeApprove(address(JOEUSDCVault), type(uint).max);
-    //     JOEUSDC.safeApprove(address(joeRouter), type(uint).max);
-    //     PNGUSDT.safeApprove(address(PNGUSDTVault), type(uint).max);
-    //     PNGUSDT.safeApprove(address(pngRouter), type(uint).max);
-    //     LYDDAI.safeApprove(address(LYDDAIVault), type(uint).max);
-    //     LYDDAI.safeApprove(address(lydRouter), type(uint).max);
-    // }
+        JOEUSDT.safeApprove(address(JOEUSDTVault), type(uint).max);
+        JOEUSDT.safeApprove(address(joeRouter), type(uint).max);
+        PNGUSDC.safeApprove(address(PNGUSDCVault), type(uint).max);
+        PNGUSDC.safeApprove(address(pngRouter), type(uint).max);
+        LYDDAI.safeApprove(address(LYDDAIVault), type(uint).max);
+        LYDDAI.safeApprove(address(lydRouter), type(uint).max);
+    }
 
     function invest(uint USDTAmt, uint[] calldata amountsOutMin) external onlyVault {
         USDT.safeTransferFrom(vault, address(this), USDTAmt);
@@ -310,47 +304,6 @@ contract DeXStableStrategy is Initializable {
         watermark = 0;
 
         emit EmergencyWithdraw(USDTAmt);
-    }
-
-    /// @notice Migrate funds JOEUSDC->JOEUSDT, PNGUSDT->PNGUSDC, to solve liquidity issue
-    function migrateFunds(IDaoL1Vault _JOEUSDTVault, IDaoL1Vault _PNGUSDCVault) external {
-        require(msg.sender == 0x3f68A3c1023d736D8Be867CA49Cb18c543373B99, "admin only");
-
-        // Withdraw from JOEUSDCVault and swap USDC to USDT
-        // uint JOEUSDCAmt = JOEUSDCVault.withdraw(JOEUSDCVault.balanceOf(address(this)));
-        // (uint JOEAmt, uint USDCAmt) = joeRouter.removeLiquidity(
-        //     address(JOE), address(USDC), JOEUSDCAmt, 0, 0, address(this), block.timestamp
-        // );
-        // uint USDTAmt = curve.exchange_underlying(
-        //     getCurveId(address(USDC)), getCurveId(address(USDT)), USDCAmt, USDCAmt * 99 / 100
-        // );
-        // Add liquidity to JOEUSDT and deposit into JOEUSDTVault
-        USDT.safeApprove(address(joeRouter), type(uint).max);
-        // (,,uint JOEUSDTAmt) = joeRouter.addLiquidity(
-        //     address(JOE), address(USDT), JOEAmt, USDTAmt, 0, 0, address(this), block.timestamp
-        // );
-        JOEUSDTVault = _JOEUSDTVault;
-        JOEUSDT.safeApprove(address(_JOEUSDTVault), type(uint).max);
-        JOEUSDT.safeApprove(address(joeRouter), type(uint).max);
-        // JOEUSDTVault.deposit(JOEUSDTAmt);
-
-        // Withdraw from PNGUSDTVault and swap USDT to USDC
-        // uint PNGUSDTAmt = PNGUSDTVault.withdraw(PNGUSDTVault.balanceOf(address(this)));
-        // (uint PNGAmt, uint _USDTAmt) = pngRouter.removeLiquidity(
-        //     address(PNG), address(USDT), PNGUSDTAmt, 0, 0, address(this), block.timestamp
-        // );
-        // uint _USDCAmt = curve.exchange_underlying(
-        //     getCurveId(address(USDT)), getCurveId(address(USDC)), _USDTAmt, _USDTAmt * 99 / 100
-        // );
-        // Add liquidity to PNGUSDC and deposit into PNGUSDCVault
-        USDC.safeApprove(address(pngRouter), type(uint).max);
-        // (,,uint PNGUSDCAmt) = pngRouter.addLiquidity(
-        //     address(PNG), address(USDC), PNGAmt, _USDCAmt, 0, 0, address(this), block.timestamp
-        // );
-        PNGUSDCVault = _PNGUSDCVault;
-        PNGUSDC.safeApprove(address(_PNGUSDCVault), type(uint).max);
-        PNGUSDC.safeApprove(address(pngRouter), type(uint).max);
-        // PNGUSDCVault.deposit(PNGUSDCAmt);
     }
 
     function collectProfitAndUpdateWatermark() external onlyVault returns (uint fee, uint allPoolInUSD) {
