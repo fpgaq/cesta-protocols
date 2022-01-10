@@ -50,8 +50,8 @@ const MIMAVAXVaultAddr = "0x8fFa3a48eC7D7Ad9b8740733deCFB9876d8849b3"
 
 const deXAvaxVaultAddr = "0xE4809Ed214631017737A3d7FA3e78600Ee96Eb85"
 const deXAvaxStrategyAddr = "0x9B403B87d856ae9B640FeE80AD338b6aF78732b4"
-const deXStableVaultAddr = ""
-const deXStableStrategyAddr = ""
+const deXStableVaultAddr = "0xcfDafB1E6310c1844EcC30C60A01D6E0D37368C5"
+const deXStableStrategyAddr = "0x374701638b3Aeaa9f8578ab2062B0b604CE1C6C8"
 const stableAvaxVaultAddr = "0xfbE9613a6bd9d28ceF286b01357789b2b02E46f5"
 const stableAvaxStrategyAddr = "0x3845d7c09374Df1ae6Ce4728c99DD20D3d75F414"
 

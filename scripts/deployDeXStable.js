@@ -9,7 +9,7 @@ const communityAddr = "0x3f68A3c1023d736D8Be867CA49Cb18c543373B99"
 const adminAddr = "0x3f68A3c1023d736D8Be867CA49Cb18c543373B99"
 
 const proxyAdminAddr = "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E"
-const avaxStableVaultImplAddr = "0x2DE3d757C16e3C0170f352D2BFB88b4278712870"
+const avaxStableVaultImplAddr = "0x254Ba654D6aEBC334693D5e72776c6cCd548FcB1"
 
 const main = async () => {
     const [deployer] = await ethers.getSigners()
@@ -19,11 +19,12 @@ const main = async () => {
     // const deployer = await ethers.getSigner(deployerAddr)
 
     // Deploy DeXToken-Stablecon strategy
-    const DeXStableStrategyFac = await ethers.getContractFactory("DeXStableStrategy", deployer)
-    // const DeXStableStrategyFac = await ethers.getContractFactory("DeXStableStrategyFuji", deployer)
-    const deXStableStrategyImpl = await DeXStableStrategyFac.deploy()
-    await deXStableStrategyImpl.deployTransaction.wait()
-    console.log("Cesta Avalanche DeXToken-Stablecoin strategy (implementation) contract address:", deXStableStrategyImpl.address)
+    // const DeXStableStrategyFac = await ethers.getContractFactory("DeXStableStrategy", deployer)
+    // // const DeXStableStrategyFac = await ethers.getContractFactory("DeXStableStrategyFuji", deployer)
+    // const deXStableStrategyImpl = await DeXStableStrategyFac.deploy()
+    // await deXStableStrategyImpl.deployTransaction.wait()
+    // console.log("Cesta Avalanche DeXToken-Stablecoin strategy (implementation) contract address:", deXStableStrategyImpl.address)
+    const deXStableStrategyImplAddr = "0xd310f4c438f61aC246090F6604F0EDB8520A2965"
 
     const deXStableStrategyArtifact = await artifacts.readArtifact("DeXStableStrategy")
     // const deXStableStrategyArtifact = await artifacts.readArtifact("DeXStableStrategyFuji")
@@ -34,7 +35,8 @@ const main = async () => {
     )
     const DeXStableStrategyProxy = await ethers.getContractFactory("AvaxProxy", deployer)
     const deXStableStrategyProxy = await DeXStableStrategyProxy.deploy(
-        deXStableStrategyImpl.address, proxyAdminAddr, dataDeXStableStrategy,
+        // deXStableStrategyImpl.address, proxyAdminAddr, dataDeXStableStrategy,
+        deXStableStrategyImplAddr, proxyAdminAddr, dataDeXStableStrategy,
     )
     await deXStableStrategyProxy.deployTransaction.wait()
     console.log("Cesta Avalanche DeXToken-Stablecoin strategy (proxy) contract address:", deXStableStrategyProxy.address)

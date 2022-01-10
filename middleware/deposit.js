@@ -20,7 +20,7 @@ const PNGAddr = "0x60781c2586d68229fde47564546784ab3faca982"
 const LYDAddr = "0x4c9b4e1ac6f24cde3660d5e4ef1ebf77c710c084"
 
 const deXAvaxStrategyAddr = "0x9B403B87d856ae9B640FeE80AD338b6aF78732b4"
-const deXStableStrategyAddr = ""
+const deXStableStrategyAddr = "0x374701638b3Aeaa9f8578ab2062B0b604CE1C6C8"
 const stableAvaxStrategyAddr = "0x3845d7c09374Df1ae6Ce4728c99DD20D3d75F414"
 
 const amountOutMinPerc = 995 // 0.5%
