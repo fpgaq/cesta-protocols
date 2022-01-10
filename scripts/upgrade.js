@@ -1,8 +1,8 @@
 const { ethers } = require("hardhat")
 
 const proxyAdminAddr = "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E"
-const contractProxyAddr = "0x07b4d7f3b5599E9c345d13813e0C8bad1010D30b"
-const contractName = "StableStableStrategy"
+const contractProxyAddr = "0x3845d7c09374Df1ae6Ce4728c99DD20D3d75F414"
+const contractName = "StableAvaxStrategy"
 
 // const avaxVaultL1FactoryAddr = "0x04DDc3281f71DC70879E312BbF759d54f514f07f"
 
@@ -16,24 +16,32 @@ async function main() {
     // const [me] = await ethers.getSigners()
     // await me.sendTransaction({to: deployer.address, value: ethers.utils.parseEther("10")})
 
-    // const contractFac = await ethers.getContractFactory(contractName)
-    // const contractImpl = await contractFac.deploy()
-    // await contractImpl.deployTransaction.wait()
-    // console.log("New implementation contract:", contractImpl.address)
+    // Deploy implementation contract
+    const contractFac = await ethers.getContractFactory(contractName, deployer)
+    const contractImpl = await contractFac.deploy()
+    await contractImpl.deployTransaction.wait()
+    console.log("New implementation contract:", contractImpl.address)
     // const contractImplAddr = "0x0D605b5fA2Eac22d5d72369deEE6A4D24eEe3e1D"
 
-    // const proxyAdmin = new ethers.Contract(proxyAdminAddr, ["function upgrade(address, address) external"], deployer)
-    // // tx = await proxyAdmin.upgrade(contractProxyAddr, contractImpl.address)
+    // Upgrade proxy contract
+    const proxyAdmin = new ethers.Contract(proxyAdminAddr, ["function upgrade(address, address) external"], deployer)
+    tx = await proxyAdmin.upgrade(contractProxyAddr, contractImpl.address)
     // tx = await proxyAdmin.upgrade(contractProxyAddr, contractImplAddr)
-    // await tx.wait()
-    // console.log("Contract upgraded successfully")
+    await tx.wait()
+    console.log("Contract upgraded successfully")
 
-    // const contract = await ethers.getContractAt(contractName, contractProxyAddr, deployer)
-    const USDTUSDCVaultAddr = "0x4d9A85E9C329Be41c6eAb320a8A029EEAe483C62"
-    const USDTDAIVaultAddr = "0x51791752Aa31d66c17AB525bf79e06c41929BbBc"
-    const USDCDAIVaultAddr = "0x4ABD68371e0cf565596744Fc80a97dE41253deBd"
-    // await contract.changeL1Vault(USDTUSDCVaultAddr, USDTDAIVaultAddr, USDCDAIVaultAddr)
-    // console.log("Change L1 vaults successfully")
+    // Set whitelist
+    const MIMAVAXVaultAddr = "0x8fFa3a48eC7D7Ad9b8740733deCFB9876d8849b3"
+    const MIMAVAXVault = await ethers.getContractAt("AvaxVaultL1", MIMAVAXVaultAddr, deployer)
+    tx = await MIMAVAXVault.setWhitelistAddress(contractProxyAddr, true)
+    await tx.wait()
+    console.log("Set whitelist successfully")
+
+    // Switch L1 vault
+    const contractProxy = await ethers.getContractAt(contractName, contractProxyAddr, deployer)
+    tx = await contractProxy.switchVaultL1(MIMAVAXVaultAddr)
+    await tx.wait()
+    console.log("Switch L1 vault successfully")
 
     // // Upgrade AvaxVaultL1
     // const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
@@ -46,18 +54,6 @@ async function main() {
     // // tx = await avaxVaultL1Factory.updateLogic(avaxVaultL1ImplAddr)
     // await tx.wait()
     // console.log("Contract upgraded successfully")
-
-    const strategyContractAddr = "0x07b4d7f3b5599E9c345d13813e0C8bad1010D30b"
-    const USDTUSDCVault = await ethers.getContractAt("AvaxVaultL1", USDTUSDCVaultAddr, deployer)
-    tx = await USDTUSDCVault.setWhitelistAddress(strategyContractAddr, true)
-    await tx.wait()
-    const USDCDAIVault = await ethers.getContractAt("AvaxVaultL1", USDCDAIVaultAddr, deployer)
-    tx = await USDCDAIVault.setWhitelistAddress(strategyContractAddr, true)
-    await tx.wait()
-    const USDTDAIVault = await ethers.getContractAt("AvaxVaultL1", USDTDAIVaultAddr, deployer)
-    tx = await USDTDAIVault.setWhitelistAddress(strategyContractAddr, true)
-    await tx.wait()
-    console.log("Set whitelist successfully")
 }
 
 main()

@@ -116,9 +116,9 @@ describe("Cesta Avalanche", function () {
         // await USDTAVAXVault.connect(admin).setWhitelistAddress(stableAvaxStrategy.address, true)
         // await USDCAVAXVault.connect(admin).setWhitelistAddress(stableAvaxStrategy.address, true)
         // await DAIAVAXVault.connect(admin).setWhitelistAddress(stableAvaxStrategy.address, true)
-        await MIMAVAXVault.connect(admin).setWhitelistAddress(stableAvaxStrategy.address, true)
+        // await MIMAVAXVault.connect(admin).setWhitelistAddress(stableAvaxStrategy.address, true)
 
-        await stableAvaxStrategy.connect(admin).switchVaultL1(MIMAVAXVaultAddr)
+        // await stableAvaxStrategy.connect(admin).switchVaultL1(MIMAVAXVaultAddr)
 
         // Swap & transfer Stablecoins to client
         const joeRouter = new ethers.Contract(joeRouterAddr, router_ABI, deployer)    
