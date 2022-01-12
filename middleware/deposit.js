@@ -45,7 +45,7 @@ const getAmountsOutMinDeXAvax = async (amountDeposit, stablecoinAddr, _provider)
 
     // Inside vault
     amountDeposit = amountDeposit.sub(amountDeposit.mul(networkFeePerc).div(10000))
-    const decimals = stablecoinAddr == DAIAddr ? 18 : 6
+    const decimals = stablecoinAddr == DAIAddr || stablecoinAddr == MIMAddr ? 18 : 6
     const amountDepositInNum = parseFloat(ethers.utils.formatUnits(amountDeposit, decimals))
     const amountDepositInWAVAX = amountDepositInNum / WAVAXPriceInUSD
     const WAVAXAmt = (await joeRouter.getAmountsOut(amountDeposit, [stablecoinAddr, WAVAXAddr]))[1]
@@ -158,7 +158,7 @@ const getAmountsOutMinDeXStable = async (amountDeposit, stablecoinAddr, _provide
     // Vault (Assume all Stablecoins have same value)
     amountDeposit = amountDeposit.sub(amountDeposit.mul(networkFeePerc).div(10000))
     // Strategy
-    if (stablecoinAddr == DAIAddr) amountDeposit = amountDeposit.div(ethers.utils.parseUnits("1", 12))
+    if (stablecoinAddr == DAIAddr || stablecoinAddr == MIMAddr) amountDeposit = amountDeposit.div(ethers.utils.parseUnits("1", 12))
     // const [pool0, pool1, pool2] = await deXStableStrategy.getEachPool()
     // const pool = pool0.add(pool1).add(pool2).add(amountDeposit)
     // const JOEUSDTTargetPool = pool.mul(6000).div(10000)
@@ -213,7 +213,7 @@ const getAmountsOutMinStableAvax = async (amountDeposit, stablecoinAddr, _provid
     // Vault (Assume all Stablecoins have same value)
     amountDeposit = amountDeposit.sub(amountDeposit.mul(networkFeePerc).div(10000))
     // Strategy
-    if (stablecoinAddr == DAIAddr) amountDeposit = amountDeposit.div(ethers.utils.parseUnits("1", 12))
+    if (stablecoinAddr == DAIAddr || stablecoinAddr == MIMAddr) amountDeposit = amountDeposit.div(ethers.utils.parseUnits("1", 12))
     const amountInvestUSDTAVAX = amountDeposit.mul(500).div(10000)
     const amountInvestUSDCAVAX = amountDeposit.mul(8000).div(10000)
     const amountInvestMIMAVAX = amountDeposit.mul(1500).div(10000)
