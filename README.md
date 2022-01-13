@@ -84,9 +84,9 @@ Cesta Avalanche Stablecoin-Stablecoin vault (proxy) contract address: 0xB103F669
 
 #### Vault implementation
 
-Cesta Avalanche vault (implementation) contract address: 0x4eDf0E199eab13A531E5Ff467B3a63d7b3115165
+Cesta Avalanche vault (implementation) contract address: 0xC7f84AEaD189F50bAfb959fD8d6f99e7b5D0DcFe
 
-Cesta Avalanche stable vault (implementation) contract address: 0x254Ba654D6aEBC334693D5e72776c6cCd548FcB1
+Cesta Avalanche stable vault (implementation) contract address: 0x3438F3F8A6B319c947a14f072182Ec3C970C91C0
 
 #### Proxy admin
 

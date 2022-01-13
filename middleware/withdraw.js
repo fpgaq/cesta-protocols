@@ -210,7 +210,7 @@ const getAmountsOutMinStableAvax = async (shareToWithdraw, stablecoinAddr, _prov
     const [WAVAXReserveJOE,] = await MIMAVAXContract.getReserves()
     const totalSupplyMIMAVAX = await MIMAVAXContract.totalSupply()
     const WAVAXAmtJOE = WAVAXReserveJOE.mul(MIMAVAXAmt).div(totalSupplyMIMAVAX)
-    const MIMAmt = (await joeRouter.getAmountsOut(WAVAXAmtJOE, [WAVAXAddr, MIMAddr]))[1]
+    const MIMAmt = (await pngRouter.getAmountsOut(WAVAXAmtJOE, [WAVAXAddr, MIMAddr]))[1]
     const MIMAmtMin = MIMAmt.mul(amountOutMinPerc).div(1000)
 
     return ["0", USDTAmtMin.toString(), USDCAmtMin.toString(), MIMAmtMin.toString()]

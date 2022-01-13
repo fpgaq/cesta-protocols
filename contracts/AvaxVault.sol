@@ -42,6 +42,7 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     IERC20Upgradeable constant USDT = IERC20Upgradeable(0xc7198437980c041c805A1EDcbA50c1Ce5db95118);
     IERC20Upgradeable constant USDC = IERC20Upgradeable(0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664);
     IERC20Upgradeable constant DAI = IERC20Upgradeable(0xd586E7F844cEa2F87f50152665BCbc2C279D8d70);
+    IERC20Upgradeable constant MIM = IERC20Upgradeable(0x130966628846BFd36ff31a822705796e8cb8C18D);
     IERC20Upgradeable constant WAVAX = IERC20Upgradeable(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7);
 
     IRouter constant joeRouter = IRouter(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
@@ -94,7 +95,7 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     function deposit(uint amount, IERC20Upgradeable token, uint[] calldata amountsOutMin) external nonReentrant whenNotPaused {
         require(msg.sender == tx.origin, "Only EOA");
         require(amount > 0, "Amount must > 0");
-        require(token == USDT || token == USDC || token == DAI, "Invalid token deposit");
+        require(token == USDT || token == USDC || token == DAI || token == MIM, "Invalid token deposit");
 
         token.safeTransferFrom(msg.sender, address(this), amount);
 
@@ -122,7 +123,7 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     function withdraw(uint share, IERC20Upgradeable token, uint[] calldata amountsOutMin) external nonReentrant {
         require(msg.sender == tx.origin, "Only EOA");
         require(share > 0 || share <= balanceOf(msg.sender), "Invalid share amount");
-        require(token == USDT || token == USDC || token == DAI, "Invalid token withdraw");
+        require(token == USDT || token == USDC || token == DAI || token == MIM, "Invalid token withdraw");
 
         uint _totalSupply = totalSupply();
         _burn(msg.sender, share);
@@ -170,6 +171,10 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         return joeRouter.swapExactTokensForTokens(
             amount, amountOutMin, path, address(this), block.timestamp
         )[1];
+    }
+
+    function approveMIM() external onlyOwner {
+        MIM.safeApprove(address(joeRouter), type(uint).max);
     }
 
     function setAddresses(address _treasuryWallet, address _communityWallet, address _admin) external onlyOwner {

@@ -234,7 +234,7 @@ const getAmountsOutMinStableAvax = async (amountDeposit, stablecoinAddr, _provid
     const WAVAXAmtPNGMin = WAVAXAmtPNG.mul(amountOutMinPerc).div(1000)
     // JOE -> replace with PNG MIM-AVAX pair
     const idealWAVAXAmtJOE = parseFloat(ethers.utils.formatUnits(amountInvestMIMAVAX.div(2), 6)) / WAVAXPriceInUSD
-    const WAVAXAmtJOE = (await joeRouter.getAmountsOut(amountInvestMIMAVAX.mul(ethers.utils.parseUnits("1", 12)).div(2), [MIMAddr, WAVAXAddr]))[1]
+    const WAVAXAmtJOE = (await pngRouter.getAmountsOut(amountInvestMIMAVAX.mul(ethers.utils.parseUnits("1", 12)).div(2), [MIMAddr, WAVAXAddr]))[1]
     if (idealWAVAXAmtJOE * 95 / 100 > WAVAXAmtJOE) {
         throw `Price impact occured (JOE): ${idealWAVAXAmtJOE * 95 / 100}, ${WAVAXAmtJOE}`
     }

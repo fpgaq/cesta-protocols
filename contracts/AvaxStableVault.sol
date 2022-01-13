@@ -22,6 +22,7 @@ interface IRouter {
 }
 
 interface ICurve {
+    function exchange(int128 i, int128 j, uint dx, uint min_dy) external returns (uint);
     function exchange_underlying(int128 i, int128 j, uint dx, uint min_dy) external returns (uint);
 }
 
@@ -43,9 +44,11 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     IERC20Upgradeable constant USDT = IERC20Upgradeable(0xc7198437980c041c805A1EDcbA50c1Ce5db95118);
     IERC20Upgradeable constant USDC = IERC20Upgradeable(0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664);
     IERC20Upgradeable constant DAI = IERC20Upgradeable(0xd586E7F844cEa2F87f50152665BCbc2C279D8d70);
+    IERC20Upgradeable constant MIM = IERC20Upgradeable(0x130966628846BFd36ff31a822705796e8cb8C18D);
 
     IRouter constant joeRouter = IRouter(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
     ICurve constant curve = ICurve(0x7f90122BF0700F9E7e1F688fe926940E8839F353); // av3pool
+    ICurve constant curve2 = ICurve(0xAEA2E71b631fA93683BCF256A8689dFa0e094fcD); // 3PoolV2
     IStrategy public strategy;
     address public proxy;
 
@@ -97,7 +100,7 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     function deposit(uint amount, IERC20Upgradeable token, uint[] calldata amountsOutMin) external nonReentrant whenNotPaused {
         require(msg.sender == tx.origin, "Only EOA");
         require(amount > 0, "Amount must > 0");
-        require(token == USDT || token == USDC || token == DAI, "Invalid token deposit");
+        require(token == USDT || token == USDC || token == DAI || token == MIM, "Invalid token deposit");
 
         token.safeTransferFrom(msg.sender, address(this), amount);
 
@@ -108,15 +111,22 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         token.safeTransfer(communityWallet, fee * 1 / 5);
         amount -= fee;
 
-        uint amountToAdjust = token != DAI ? amount * 1e12 : amount; // Change to 18 decimals
+        uint amountToAdjust = token == USDT || token == USDC ? amount * 1e12 : amount; // Change to 18 decimals
         strategy.adjustWatermark(amountToAdjust, true);
         
         uint USDTAmt;
         if (token != USDT) {
-            uint amountOut = token == DAI ? amount / 1e12 : amount;
-            USDTAmt = curve.exchange_underlying(
-                getCurveId(address(token)), getCurveId(address(USDT)), amount, amountOut * 99 / 100
-            );
+            if (token != DAI) {
+                uint amountOut = token != USDC ? amount / 1e12 : amount;
+                USDTAmt = curve2.exchange(
+                    getCurveId(address(token)), getCurveId(address(USDT)), amount, amountOut * 99 / 100
+                );
+            } else {
+                uint amountOut = amount / 1e12;
+                USDTAmt = curve.exchange_underlying(
+                    0, 2, amount, amountOut * 99 / 100
+                );
+            }
         } else {
             USDTAmt = amount;
         }
@@ -133,7 +143,7 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     function withdraw(uint share, IERC20Upgradeable token, uint[] calldata amountsOutMin) external nonReentrant {
         require(msg.sender == tx.origin, "Only EOA");
         require(share > 0 || share <= balanceOf(msg.sender), "Invalid share amount");
-        require(token == USDT || token == USDC || token == DAI, "Invalid token withdraw");
+        require(token == USDT || token == USDC || token == DAI || token == MIM, "Invalid token withdraw");
 
         uint withdrawAmt = (getAllPoolInUSD()) * share / totalSupply();
         _burn(msg.sender, share);
@@ -145,9 +155,15 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         }
         
         if (token != USDT) {
-            withdrawAmt = curve.exchange_underlying(
-                getCurveId(address(USDT)), getCurveId(address(token)), withdrawAmt, withdrawAmt * 99 / 100
-            );
+            if (token != DAI) {
+                withdrawAmt = curve2.exchange(
+                    getCurveId(address(USDT)), getCurveId(address(token)), withdrawAmt, withdrawAmt * 99 / 100
+                );
+            } else {
+                withdrawAmt = curve.exchange_underlying(
+                    2, 0, withdrawAmt, withdrawAmt * 99 / 100
+                );
+            }
         }
 
         
@@ -176,6 +192,12 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         strategy.emergencyWithdraw();
     }
 
+    function approveCurve2() external onlyOwner {
+        USDT.safeApprove(address(curve2), type(uint).max);
+        USDC.safeApprove(address(curve2), type(uint).max);
+        MIM.safeApprove(address(curve2), type(uint).max);
+    }
+
     function setAddresses(address _treasuryWallet, address _communityWallet, address _admin) external onlyOwner {
         address oldTreasuryWallet = treasuryWallet;
         address oldcommunityWallet = communityWallet;
@@ -198,9 +220,9 @@ contract AvaxStableVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
     }
 
     function getCurveId(address token) private pure returns (int128) {
-        if (token == address(USDT)) return 2;
-        else if (token == address(USDC)) return 1;
-        else return 0; // DAI
+        if (token == address(USDT)) return 1;
+        else if (token == address(USDC)) return 2;
+        else return 0; // MIM
     }
 
     function getAllPoolInUSD() public view returns (uint) {

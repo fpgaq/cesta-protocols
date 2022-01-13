@@ -7,6 +7,7 @@ const middleware = require("../middleware/withdraw.js")
 const USDTAddr = "0xc7198437980c041c805A1EDcbA50c1Ce5db95118"
 const USDCAddr = "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664"
 const DAIAddr = "0xd586E7F844cEa2F87f50152665BCbc2C279D8d70"
+const MIMAddr = "0x130966628846BFd36ff31a822705796e8cb8C18D"
 const WAVAXAddr = "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7"
 const JOEAddr = "0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd"
 const PNGAddr = "0x60781C2586D68229fde47564546784ab3fACA982"
@@ -22,6 +23,7 @@ const joeStakingContractV3Addr = "0x188bED1968b795d5c9022F6a0bb5931Ac4c18F00"
 const JOEUSDTVaultAddr = "0xaC8Ce7535d8E3D911A9aFD9d9260f0eC8722B053"
 const PNGUSDCVaultAddr = "0xD57AEEa053b94d4f2DE266b92FA794D73aDb0789"
 const LYDDAIVaultAddr = "0x469b5620675a9988c24cDd57B1E7136E162D6a53"
+const MIMAVAXVaultAddr = "0x8fFa3a48eC7D7Ad9b8740733deCFB9876d8849b3"
 
 const pngRouterAddr = "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
 const pngStakingContractAddr = "0x1f806f7C8dED893fd3caE279191ad7Aa3798E928" // V2 farm (MiniChef)
@@ -33,7 +35,7 @@ describe("Cesta Avalanche", function () {
     it("Should work on DeXToken-AVAX strategy", async function () {
         let tx, receipt, amountsOutMin
         // const [deployer, client, client2, client3, treasury, community, admin, multisig] = await ethers.getSigners()
-        const [deployer, client, client2, client3, treasury, community] = await ethers.getSigners()
+        const [deployer, client, client2, client3, client4, treasury, community] = await ethers.getSigners()
 
         // Impersonate admin
         const adminAddr = "0x3f68A3c1023d736D8Be867CA49Cb18c543373B99"
@@ -45,6 +47,7 @@ describe("Cesta Avalanche", function () {
         const JOEUSDTVault = await ethers.getContractAt("AvaxVaultL1", JOEUSDTVaultAddr, deployer)
         const PNGUSDCVault = await ethers.getContractAt("AvaxVaultL1", PNGUSDCVaultAddr, deployer)
         const LYDDAIVault = await ethers.getContractAt("AvaxVaultL1", LYDDAIVaultAddr, deployer)
+        // const MIMAVAXVault = await ethers.getContractAt("AvaxVaultL1", MIMAVAXVaultAddr, deployer)
 
         // Upgrade AvaxVaultL1
         // const avaxVaultL1Fac = await ethers.getContractFactory("AvaxVaultL1", deployer)
@@ -54,32 +57,6 @@ describe("Cesta Avalanche", function () {
 
         // const avaxVaultL1Artifact = await artifacts.readArtifact("AvaxVaultL1")
         // const avaxVaultL1Interface = new ethers.utils.Interface(avaxVaultL1Artifact.abi)
-
-        // Deploy JOE-USDT
-        // const dataJOEUSDT = avaxVaultL1Interface.encodeFunctionData(
-        //     "initialize",
-        //     [
-        //         "DAO L1 Joe JOE-USDT", "daoJoeUSDT",
-        //         joeRouterAddr, joeStakingContractAddr, JOEAddr, 30, false,
-        //         treasury.address, community.address, admin.address
-        //     ]
-        // )
-        // await avaxVaultL1Factory.connect(admin).createVault(dataJOEUSDT)
-        // const JOEUSDTVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
-        // const JOEUSDTVault = await ethers.getContractAt("AvaxVaultL1", JOEUSDTVaultAddr, deployer)
-
-        // Deploy PNG-USDC
-        // const dataPNGUSDC = avaxVaultL1Interface.encodeFunctionData(
-        //     "initialize",
-        //     [
-        //         "DAO L1 Pangolin PNG-USDC", "daoPngUSDC",
-        //         pngRouterAddr, pngStakingContractAddr, PNGAddr, 1, true,
-        //         treasury.address, community.address, admin.address
-        //     ]
-        // )
-        // await avaxVaultL1Factory.connect(admin).createVault(dataPNGUSDC)
-        // const PNGUSDCVaultAddr = await avaxVaultL1Factory.getVault((await avaxVaultL1Factory.getVaultLength()).sub(1))
-        // const PNGUSDCVault = await ethers.getContractAt("AvaxVaultL1", PNGUSDCVaultAddr, deployer)
 
         // Proxy admin
         const proxyAdmin = await ethers.getContractAt("DAOProxyAdmin", "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E", deployer)
@@ -131,6 +108,8 @@ describe("Cesta Avalanche", function () {
         // const avaxStableVaultImpl = await avaxStableVaultFac.deploy()
         // await proxyAdmin.connect(admin).upgrade(avaxStableVaultProxyAddr, avaxStableVaultImpl.address)
 
+        // await avaxStableVault.connect(admin).approveCurve2()
+
         // await avaxStableVault.connect(admin).setFees(100, 2000)
 
         // Set vault
@@ -155,14 +134,20 @@ describe("Cesta Avalanche", function () {
             ethers.utils.parseUnits("10000", 18), [WAVAXAddr, DAIAddr], deployer.address, Math.ceil(Date.now() / 1000),
             {value: ethers.utils.parseEther("200")}
         )
+        await joeRouter.swapAVAXForExactTokens(
+            ethers.utils.parseUnits("10000", 18), [WAVAXAddr, MIMAddr], deployer.address, Math.ceil(Date.now() / 1000),
+            {value: ethers.utils.parseEther("200")}
+        )
         const USDTContract = new ethers.Contract(USDTAddr, IERC20_ABI, deployer)
         const USDCContract = new ethers.Contract(USDCAddr, IERC20_ABI, deployer)
         const DAIContract = new ethers.Contract(DAIAddr, IERC20_ABI, deployer)
+        const MIMContract = new ethers.Contract(MIMAddr, IERC20_ABI, deployer)
         await USDTContract.transfer(client.address, ethers.utils.parseUnits("10000", 6))
         await USDTContract.transfer(client2.address, ethers.utils.parseUnits("10000", 6))
         await USDCContract.transfer(client.address, ethers.utils.parseUnits("10000", 6))
         await USDCContract.transfer(client3.address, ethers.utils.parseUnits("10000", 6))
         await DAIContract.transfer(client.address, ethers.utils.parseUnits("10000", 18))
+        await MIMContract.transfer(client4.address, ethers.utils.parseUnits("10000", 18))
 
         // Deposit
         amountsOutMin = [0, 0, 0, 0]
@@ -183,8 +168,10 @@ describe("Cesta Avalanche", function () {
         // Second Deposit
         await USDTContract.connect(client2).approve(avaxStableVault.address, ethers.constants.MaxUint256)
         await USDCContract.connect(client3).approve(avaxStableVault.address, ethers.constants.MaxUint256)
+        await MIMContract.connect(client4).approve(avaxStableVault.address, ethers.constants.MaxUint256)
         await avaxStableVault.connect(client2).deposit(ethers.utils.parseUnits("10000", 6), USDTAddr, amountsOutMin)
         await avaxStableVault.connect(client3).deposit(ethers.utils.parseUnits("10000", 6), USDCAddr, amountsOutMin)
+        await avaxStableVault.connect(client4).deposit(ethers.utils.parseUnits("10000", 18), MIMAddr, amountsOutMin)
         // console.log(ethers.utils.formatEther(await avaxStableVault.balanceOf(client2.address))) // 9924.184352227647585308
         // console.log(ethers.utils.formatEther(await avaxStableVault.balanceOf(client3.address))) // 9906.071919125399551665
         // console.log(ethers.utils.formatEther(await avaxStableVault.getAllPoolInUSD())) // 49650.775003500951137172
@@ -237,15 +224,15 @@ describe("Cesta Avalanche", function () {
         // Withdraw
         console.log("-----withdraw-----")
         amountsOutMin = [0, 0, 0, 0]
-        // amountsOutMin = await middleware.getAmountsOutMinDeXAvax((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, deployer)
-        await avaxStableVault.connect(client).withdraw((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, amountsOutMin)
-        // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client2.address), USDTAddr, deployer)
-        await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
-        // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client3.address), USDTAddr, deployer)
-        await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 10006.332296
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9976.481702
-        console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9945.829284
+        // // amountsOutMin = await middleware.getAmountsOutMinDeXAvax((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, deployer)
+        // await avaxStableVault.connect(client).withdraw((await avaxStableVault.balanceOf(client.address)).div(3), USDTAddr, amountsOutMin)
+        // // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client2.address), USDTAddr, deployer)
+        // await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), USDTAddr, amountsOutMin)
+        // // amountsOutMin = await middleware.getAmountsOutMinDeXAvax(await avaxStableVault.balanceOf(client3.address), USDTAddr, deployer)
+        // await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), USDTAddr, amountsOutMin)
+        // console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client.address), 6)) // 10006.332296
+        // console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client2.address), 6)) // 9976.481702
+        // console.log(ethers.utils.formatUnits(await USDTContract.balanceOf(client3.address), 6)) // 9945.829284
 
         // amountsOutMin = await getAmountsOutMinDeXAvax(
         //     avaxStableVault.address, deXStableStrategy.address, (await avaxStableVault.balanceOf(client.address)).div(3), USDCAddr, deployer
@@ -270,6 +257,15 @@ describe("Cesta Avalanche", function () {
         // console.log(ethers.utils.formatUnits(await DAIContract.balanceOf(client.address), 18)) // 9841.539386186864417744
         // console.log(ethers.utils.formatUnits(await DAIContract.balanceOf(client2.address), 18)) // 9854.417211070852915627
         // console.log(ethers.utils.formatUnits(await DAIContract.balanceOf(client3.address), 18)) // 9840.180822409327116238
+
+        await avaxStableVault.connect(client).withdraw((await avaxStableVault.balanceOf(client.address)).div(3), MIMAddr, amountsOutMin)
+        await avaxStableVault.connect(client2).withdraw(avaxStableVault.balanceOf(client2.address), MIMAddr, amountsOutMin)
+        await avaxStableVault.connect(client3).withdraw(avaxStableVault.balanceOf(client3.address), MIMAddr, amountsOutMin)
+        await avaxStableVault.connect(client4).withdraw(avaxStableVault.balanceOf(client4.address), MIMAddr, amountsOutMin)
+        console.log(ethers.utils.formatUnits(await MIMContract.balanceOf(client.address), 18)) // 10021.040728461682052907
+        console.log(ethers.utils.formatUnits(await MIMContract.balanceOf(client2.address), 18)) // 9977.572211613977192448
+        console.log(ethers.utils.formatUnits(await MIMContract.balanceOf(client3.address), 18)) // 9944.16191623293514966
+        console.log(ethers.utils.formatUnits(await MIMContract.balanceOf(client4.address), 18)) // 9917.390972470374984196
 
         // console.log(ethers.utils.formatEther(await avaxStableVault.getAllPoolInUSD())) // 19930.369099549349329984
         // console.log(ethers.utils.formatEther(await avaxStableVault.getPricePerFullShare())) // 1.002516217703994158
