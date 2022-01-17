@@ -1,8 +1,8 @@
 const { ethers } = require("hardhat")
 
 const proxyAdminAddr = "0xd02C2Ff6ef80f1d096Bc060454054B607d26763E"
-const contractProxyAddr = "0xB103F669E87f67376FB9458A67226f2774a0B4FD"
-const contractName = "AvaxStableVault"
+const contractProxyAddr = "0xE4809Ed214631017737A3d7FA3e78600Ee96Eb85"
+const contractName = "AvaxVault"
 
 // const avaxVaultL1FactoryAddr = "0x04DDc3281f71DC70879E312BbF759d54f514f07f"
 
@@ -21,7 +21,7 @@ async function main() {
     // const contractImpl = await contractFac.deploy()
     // await contractImpl.deployTransaction.wait()
     // console.log("New implementation contract:", contractImpl.address)
-    const contractImplAddr = "0x3438F3F8A6B319c947a14f072182Ec3C970C91C0"
+    const contractImplAddr = "0xb65F5286aB4764c929e532ef0a18DAf2BD09757e"
 
     // Upgrade proxy contract
     const proxyAdmin = new ethers.Contract(proxyAdminAddr, ["function upgrade(address, address) external"], deployer)
@@ -30,10 +30,10 @@ async function main() {
     await tx.wait()
     console.log("Contract upgraded successfully")
 
-    const contractProxy = await ethers.getContractAt(contractName, contractProxyAddr, deployer)
-    tx = await contractProxy.approveCurve2()
-    await tx.wait()
-    console.log("Approve Curve2 successfully")
+    // const contractProxy = await ethers.getContractAt(contractName, contractProxyAddr, deployer)
+    // tx = await contractProxy.approveCurve2()
+    // await tx.wait()
+    // console.log("Approve Curve2 successfully")
     
 
     // Set whitelist

@@ -106,7 +106,7 @@ contract AvaxVault is Initializable, ERC20Upgradeable, OwnableUpgradeable,
         token.safeTransfer(communityWallet, fee * 1 / 5);
         amount -= fee;
 
-        uint amountToAdjust = token != DAI ? amount * 1e12 : amount; // Change to 18 decimals
+        uint amountToAdjust = token == USDT || token == USDC ? amount * 1e12 : amount; // Change to 18 decimals
         strategy.adjustWatermark(amountToAdjust, true);
         
         uint WAVAXAmt = swap(address(token), address(WAVAX), amount, amountsOutMin[0]);
